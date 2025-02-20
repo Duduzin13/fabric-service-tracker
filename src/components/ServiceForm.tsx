@@ -1,7 +1,8 @@
 
-import { useState } from "react";
-import { Service, ServiceType } from "@/types";
-import { saveService } from "@/lib/localStorage";
+import { useState, useEffect } from "react";
+import { Service, ServiceType, Client } from "@/types";
+import { saveService, getClients } from "@/lib/localStorage";
+import { generateServicePDF } from "@/lib/pdfGenerator";
 import { toast } from "sonner";
 
 const serviceTypes: { value: ServiceType; label: string }[] = [
@@ -23,19 +24,48 @@ export default function ServiceForm({ clientId }: ServiceFormProps) {
     name: "",
     description: "",
   });
+  const [client, setClient] = useState<Client | null>(null);
+
+  useEffect(() => {
+    const clients = getClients();
+    const foundClient = clients.find(c => c.id === clientId);
+    if (foundClient) {
+      setClient(foundClient);
+    }
+  }, [clientId]);
+
+  const generateControlNumber = () => {
+    // Gera um número de controle único baseado na data e um número aleatório
+    const timestamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `${timestamp.toString().slice(-6)}${random}`;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     const service: Service = {
       id: crypto.randomUUID(),
       clientId,
-      controlNumber: new Date().getTime().toString().slice(-6),
+      controlNumber: generateControlNumber(),
       ...formData,
       createdAt: new Date().toISOString(),
     };
+    
     saveService(service);
+    
+    // Gerar PDF se o cliente foi encontrado
+    if (client) {
+      try {
+        generateServicePDF(client, service);
+        toast.success("Serviço cadastrado e PDF gerado com sucesso!");
+      } catch (error) {
+        toast.error("Erro ao gerar o PDF");
+        console.error("Erro ao gerar PDF:", error);
+      }
+    }
+
     setFormData({ type: "chair", name: "", description: "" });
-    toast.success("Serviço cadastrado com sucesso!");
   };
 
   return (
