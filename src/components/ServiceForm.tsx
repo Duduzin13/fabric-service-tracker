@@ -23,6 +23,7 @@ export default function ServiceForm({ clientId }: ServiceFormProps) {
     type: "chair" as ServiceType,
     name: "",
     description: "",
+    controlNumber: "",
   });
   const [client, setClient] = useState<Client | null>(null);
 
@@ -34,21 +35,29 @@ export default function ServiceForm({ clientId }: ServiceFormProps) {
     }
   }, [clientId]);
 
-  const generateControlNumber = () => {
-    // Gera um número de controle único baseado na data e um número aleatório
+  useEffect(() => {
+    // Gera um número de controle sugerido inicial
     const timestamp = new Date().getTime();
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `${timestamp.toString().slice(-6)}${random}`;
-  };
+    const suggestedNumber = `${timestamp.toString().slice(-6)}${random}`;
+    setFormData(prev => ({ ...prev, controlNumber: suggestedNumber }));
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!formData.controlNumber.trim()) {
+      toast.error("Por favor, insira um número de controle");
+      return;
+    }
+    
     const service: Service = {
       id: crypto.randomUUID(),
       clientId,
-      controlNumber: generateControlNumber(),
-      ...formData,
+      controlNumber: formData.controlNumber,
+      type: formData.type,
+      name: formData.name,
+      description: formData.description,
       createdAt: new Date().toISOString(),
     };
     
@@ -65,11 +74,30 @@ export default function ServiceForm({ clientId }: ServiceFormProps) {
       }
     }
 
-    setFormData({ type: "chair", name: "", description: "" });
+    setFormData({ 
+      type: "chair", 
+      name: "", 
+      description: "", 
+      controlNumber: "" 
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="controlNumber">
+          Número de Controle
+        </label>
+        <input
+          id="controlNumber"
+          type="text"
+          required
+          className="w-full px-3 py-2 border rounded-md"
+          value={formData.controlNumber}
+          onChange={(e) => setFormData({ ...formData, controlNumber: e.target.value })}
+          placeholder="Digite o número de controle"
+        />
+      </div>
       <div>
         <label className="block text-sm font-medium mb-1" htmlFor="type">
           Tipo de Serviço
