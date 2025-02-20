@@ -9,6 +9,11 @@ const Index = () => {
   const [selectedTab, setSelectedTab] = useState<"clients" | "services">("clients");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
+  const handleSelectClient = (clientId: string) => {
+    setSelectedClientId(clientId);
+    setSelectedTab("services");
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -46,7 +51,10 @@ const Index = () => {
             <div className="space-y-6">
               <div className="bg-card p-6 rounded-lg border shadow-sm">
                 <h2 className="text-lg font-medium mb-4">Lista de Clientes</h2>
-                <ClientList />
+                <ClientList
+                  onSelectClient={handleSelectClient}
+                  selectedClientId={selectedClientId}
+                />
               </div>
             </div>
           </div>

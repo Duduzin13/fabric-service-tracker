@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { Client } from "@/types";
 import { getClients } from "@/lib/localStorage";
 
-export default function ClientList() {
+interface ClientListProps {
+  onSelectClient?: (clientId: string) => void;
+  selectedClientId?: string | null;
+}
+
+export default function ClientList({ onSelectClient, selectedClientId }: ClientListProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
 
@@ -30,7 +35,10 @@ export default function ClientList() {
         {filteredClients.map((client) => (
           <div
             key={client.id}
-            className="p-4 bg-card text-card-foreground rounded-lg border shadow-sm animate-fade-in"
+            className={`p-4 bg-card text-card-foreground rounded-lg border shadow-sm animate-fade-in cursor-pointer transition-all ${
+              selectedClientId === client.id ? "ring-2 ring-primary" : ""
+            }`}
+            onClick={() => onSelectClient?.(client.id)}
           >
             <h3 className="font-medium mb-2">{client.name}</h3>
             <p className="text-sm text-muted-foreground">{client.address}</p>
