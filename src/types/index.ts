@@ -1,20 +1,16 @@
-
-export type Client = {
+export interface Client {
   id: string;
   name: string;
   address: string;
   phone: string;
   createdAt: string;
-};
+}
 
-export type ServiceType = 'chair' | 'sofa' | 'armchair' | 'pouf' | 'curtain' | 'cover';
-
-export type Service = {
+export interface Service {
   id: string;
   clientId: string;
+  type: string;
   controlNumber: string;
-  type: ServiceType;
-  name: string;
   description: string;
   createdAt: string;
-};
+}

@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { Client } from "@/types";
 import { saveClient } from "@/lib/localStorage";
 import { toast } from "sonner";
+import { useClients } from '@/contexts/ClientContext';
 
 export default function ClientForm() {
+  const { refreshClients } = useClients();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -15,12 +16,15 @@ export default function ClientForm() {
     e.preventDefault();
     const client: Client = {
       id: crypto.randomUUID(),
-      ...formData,
+      name: formData.name,
+      address: formData.address,
+      phone: formData.phone,
       createdAt: new Date().toISOString(),
     };
     saveClient(client);
-    setFormData({ name: "", address: "", phone: "" });
+    refreshClients();
     toast.success("Cliente cadastrado com sucesso!");
+    setFormData({ name: "", address: "", phone: "" });
   };
 
   return (

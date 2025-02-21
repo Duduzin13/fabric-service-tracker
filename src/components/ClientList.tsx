@@ -1,49 +1,64 @@
-
 import { useEffect, useState } from "react";
+import { useClients } from '@/contexts/ClientContext';
+import { ClientCard } from "./ClientCard";
+import { saveClient, deleteClient } from "@/lib/localStorage";
+import { toast } from "sonner";
 import { Client } from "@/types";
-import { getClients } from "@/lib/localStorage";
 
-interface ClientListProps {
-  onSelectClient?: (clientId: string) => void;
-  selectedClientId?: string | null;
-}
-
-export default function ClientList({ onSelectClient, selectedClientId }: ClientListProps) {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [search, setSearch] = useState("");
+export default function ClientList() {
+  const { clients, refreshClients } = useClients();
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setClients(getClients());
+    refreshClients();
   }, []);
 
-  const filteredClients = clients.filter((client) =>
-    client.name.toLowerCase().includes(search.toLowerCase())
+  const handleUpdateClient = async (updatedClient: Client) => {
+    try {
+      await saveClient(updatedClient);
+      refreshClients();
+      toast.success('Cliente atualizado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao atualizar cliente');
+    }
+  };
+
+  const handleDeleteClient = async (clientId: string) => {
+    try {
+      deleteClient(clientId);
+      refreshClients();
+      toast.success('Cliente excluído com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao excluir cliente');
+    }
+  };
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold mb-4">Lista de Clientes</h2>
+      <div className="mb-4">
         <input
-          type="search"
+          type="text"
           placeholder="Buscar clientes..."
           className="w-full px-3 py-2 border rounded-md"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {filteredClients.map((client) => (
-          <div
+          <ClientCard
             key={client.id}
-            className={`p-4 bg-card text-card-foreground rounded-lg border shadow-sm animate-fade-in cursor-pointer transition-all ${
-              selectedClientId === client.id ? "ring-2 ring-primary" : ""
-            }`}
-            onClick={() => onSelectClient?.(client.id)}
-          >
-            <h3 className="font-medium mb-2">{client.name}</h3>
-            <p className="text-sm text-muted-foreground">{client.address}</p>
-            <p className="text-sm text-muted-foreground">{client.phone}</p>
-          </div>
+            client={client}
+            onUpdate={handleUpdateClient}
+            onDelete={handleDeleteClient}
+          />
         ))}
       </div>
     </div>

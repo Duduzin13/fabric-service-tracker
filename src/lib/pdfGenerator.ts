@@ -1,8 +1,7 @@
-
 import jsPDF from 'jspdf';
 import { Client, Service } from '@/types';
 
-export const generateServicePDF = (client: Client, service: Service) => {
+export async function generateServicePDF(client: Client, service: Service): Promise<Blob> {
   const doc = new jsPDF();
   
   // Configurar fonte e tamanho
@@ -13,7 +12,7 @@ export const generateServicePDF = (client: Client, service: Service) => {
   doc.text("Ordem de Serviço", 105, 20, { align: "center" });
   
   // Desenhar caixa para amostra de tecido (5x5 cm) no canto superior esquerdo
-  doc.rect(10, 10, 50, 50); // 50 = 5cm em PDF points
+  doc.rect(10, 10, 50, 50);
   doc.setFontSize(8);
   doc.text("Área para amostra de tecido", 35, 35, { align: "center" });
   
@@ -21,7 +20,6 @@ export const generateServicePDF = (client: Client, service: Service) => {
   doc.setFontSize(16);
   doc.text("Dados do Cliente", 20, 80);
   doc.setFontSize(14);
-  doc.text(`Nome: ${client.name}`, 20, 90);
   doc.text(`Endereço: ${client.address}`, 20, 100);
   doc.text(`Telefone: ${client.phone}`, 20, 110);
   
@@ -30,21 +28,22 @@ export const generateServicePDF = (client: Client, service: Service) => {
   doc.text("Detalhes do Serviço", 20, 130);
   doc.setFontSize(14);
   doc.text(`Número de Controle: ${service.controlNumber}`, 20, 140);
-  doc.text(`Tipo: ${getServiceTypeLabel(service.type)}`, 20, 150);
-  doc.text(`Nome: ${service.name}`, 20, 160);
+  doc.text(`Tipo: ${service.type}`, 20, 150);
   
   // Descrição do serviço
-  doc.text("Descrição:", 20, 180);
+  doc.text("Descrição:", 20, 170);
   const descriptionLines = doc.splitTextToSize(service.description, 170);
-  doc.text(descriptionLines, 20, 190);
+  doc.text(descriptionLines, 20, 180);
   
   // Data
   const date = new Date(service.createdAt).toLocaleDateString();
   doc.text(`Data: ${date}`, 20, 270);
   
-  // Salvar o PDF
-  doc.save(`ordem-servico-${service.controlNumber}.pdf`);
-};
+  return new Promise<Blob>((resolve) => {
+    const blob = doc.output('blob');
+    resolve(blob);
+  });
+}
 
 const getServiceTypeLabel = (type: string): string => {
   const types: Record<string, string> = {
