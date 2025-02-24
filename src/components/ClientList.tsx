@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import ClientForm from "./ClientForm";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { ListChecks } from "lucide-react";
 
 export default function ClientList() {
   const navigate = useNavigate();
@@ -28,19 +29,25 @@ export default function ClientList() {
   }, []);
 
   const handleDeleteClient = async (clientId: string) => {
-    if (confirm("Tem certeza que deseja excluir este cliente?")) {
-      try {
-        await deleteClient(clientId);
-        toast.success("Cliente excluído com sucesso!");
-      } catch (error) {
-        console.error(error);
-        toast.error("Erro ao excluir cliente");
-      }
+    if (!confirm('Tem certeza que deseja excluir este cliente?')) {
+      return;
+    }
+    try {
+      await deleteClient(clientId);
+      toast.success('Cliente excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir cliente:', error);
+      toast.error('Erro ao excluir cliente');
     }
   };
 
-  const handleClientClick = (clientId: string) => {
-    navigate(`/client/${clientId}`);
+  const handleNavigateToServices = (clientId: string) => {
+    try {
+      navigate(`/client/${clientId}`);
+    } catch (error) {
+      console.error('Erro ao navegar para serviços:', error);
+      toast.error('Erro ao acessar serviços do cliente');
+    }
   };
 
   return (
@@ -53,23 +60,6 @@ export default function ClientList() {
         className="mb-4"
       />
 
-      <Dialog open={!!editingClient} onOpenChange={() => setEditingClient(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Cliente</DialogTitle>
-          </DialogHeader>
-          {editingClient && (
-            <ClientForm 
-              initialData={editingClient} 
-              onSubmit={() => {
-                setEditingClient(null);
-                refreshClients();
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
       {filteredClients.length === 0 ? (
         <p className="text-center text-muted-foreground">
           {searchTerm ? "Nenhum cliente encontrado" : "Nenhum cliente cadastrado"}
@@ -78,35 +68,35 @@ export default function ClientList() {
         filteredClients.map((client) => (
           <div
             key={client.id}
-            className="p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+            className="bg-card rounded-lg p-4 shadow-sm border"
           >
             <div className="flex justify-between items-start">
-              <div 
-                onClick={() => handleClientClick(client.id)}
-                className="cursor-pointer flex-1"
-              >
+              <div>
                 <h3 className="font-medium">{client.name}</h3>
-                <p className="text-sm text-muted-foreground">{client.address}</p>
                 <p className="text-sm text-muted-foreground">{client.phone}</p>
+                <p className="text-sm text-muted-foreground">{client.address}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEditingClient(client);
-                  }}
+                  onClick={() => handleNavigateToServices(client.id)}
+                  className="flex items-center gap-2"
+                >
+                  <ListChecks className="h-4 w-4" />
+                  Ver Serviços
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingClient(client)}
                 >
                   Editar
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClient(client.id);
-                  }}
+                  onClick={() => handleDeleteClient(client.id)}
                 >
                   Excluir
                 </Button>
@@ -115,6 +105,23 @@ export default function ClientList() {
           </div>
         ))
       )}
+
+      <Dialog open={!!editingClient} onOpenChange={() => setEditingClient(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+          </DialogHeader>
+          {editingClient && (
+            <ClientForm
+              initialData={editingClient}
+              onSubmit={() => {
+                setEditingClient(null);
+                refreshClients();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
