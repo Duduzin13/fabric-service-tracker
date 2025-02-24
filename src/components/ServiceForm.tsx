@@ -50,7 +50,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
       }
       toast.success(initialData ? 'Serviço atualizado!' : 'Serviço cadastrado!');
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao salvar serviço:', error);
       toast.error(initialData ? 'Erro ao atualizar serviço' : 'Erro ao cadastrar serviço');
     } finally {
       setIsSubmitting(false);
@@ -65,6 +65,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         </label>
         <Input
           id="type"
+          type="text"
           required
           value={formData.type}
           onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -77,6 +78,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         </label>
         <Input
           id="controlNumber"
+          type="text"
           required
           value={formData.controlNumber}
           onChange={(e) => setFormData({ ...formData, controlNumber: e.target.value })}

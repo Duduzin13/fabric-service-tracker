@@ -1,5 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  collection, 
+  getDocs, 
+  doc, 
+  setDoc, 
+  deleteDoc, 
+  updateDoc
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,7 +19,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const db = getFirestore(app);
 
 // Funções do Firebase
 export async function getFromFirebase<T>(collectionName: string): Promise<T[]> {
@@ -20,15 +28,26 @@ export async function getFromFirebase<T>(collectionName: string): Promise<T[]> {
 }
 
 export async function saveToFirebase(collectionName: string, data: any) {
-  const docRef = doc(collection(db, collectionName));
-  await setDoc(docRef, { ...data, id: docRef.id });
-  return docRef.id;
+  if (data.id) {
+    // Se tem ID, atualiza
+    const docRef = doc(db, collectionName, data.id);
+    await setDoc(docRef, data, { merge: true });
+    return data.id;
+  } else {
+    // Se não tem ID, cria novo
+    const docRef = doc(collection(db, collectionName));
+    const id = docRef.id;
+    await setDoc(docRef, { ...data, id });
+    return id;
+  }
 }
 
 export async function updateInFirebase(collectionName: string, id: string, data: any) {
-  await updateDoc(doc(db, collectionName, id), data);
+  const docRef = doc(db, collectionName, id);
+  await updateDoc(docRef, data);
 }
 
 export async function deleteFromFirebase(collectionName: string, id: string) {
-  await deleteDoc(doc(db, collectionName, id));
+  const docRef = doc(db, collectionName, id);
+  await deleteDoc(docRef);
 }

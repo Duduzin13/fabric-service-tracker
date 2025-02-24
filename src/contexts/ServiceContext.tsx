@@ -1,12 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Service } from '@/types';
-import { saveToFirebase, getFromFirebase, updateInFirebase, deleteFromFirebase } from '@/lib/firebase';
+import { saveToFirebase, getFromFirebase, deleteFromFirebase } from '@/lib/firebase';
 
 interface ServiceContextType {
   services: Service[];
   refreshServices: (clientId: string) => Promise<void>;
   saveService: (service: Service) => Promise<void>;
-  updateService: (service: Service) => Promise<void>;
   deleteService: (serviceId: string) => Promise<void>;
 }
 
@@ -36,25 +35,14 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateService = async (service: Service) => {
-    try {
-      const { id, ...data } = service;
-      await updateInFirebase('services', id, data);
-      await refreshServices(service.clientId);
-    } catch (error) {
-      console.error('Erro ao atualizar serviço:', error);
-      throw error;
-    }
-  };
-
   const deleteService = async (serviceId: string) => {
     try {
+      // Encontra o serviço para pegar o clientId antes de deletar
+      const service = services.find(s => s.id === serviceId);
+      if (!service) throw new Error('Serviço não encontrado');
+      
       await deleteFromFirebase('services', serviceId);
-      // Recarrega a lista após deletar
-      const currentClientId = services[0]?.clientId;
-      if (currentClientId) {
-        await refreshServices(currentClientId);
-      }
+      await refreshServices(service.clientId);
     } catch (error) {
       console.error('Erro ao deletar serviço:', error);
       throw error;
@@ -66,7 +54,6 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
       services, 
       refreshServices,
       saveService,
-      updateService,
       deleteService
     }}>
       {children}

@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { ServiceCard } from "./ServiceCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ServiceForm from "./ServiceForm";
-import { getClients } from "@/lib/localStorage";
 import { generateServicePDF } from "@/lib/pdfGenerator";
 import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
+import { getFromFirebase } from '@/lib/firebase';
 
 interface ServiceListProps {
   clientId: string;
@@ -67,11 +67,23 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   });
 
   useEffect(() => {
+    const loadClientAndServices = async () => {
+      try {
+        // Busca o cliente diretamente do Firebase
+        const clients = await getFromFirebase<Client>('clients');
+        const client = clients.find(c => c.id === clientId);
+        setCurrentClient(client || null);
+        
+        // Carrega os serviços
+        await refreshServices(clientId);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        toast.error('Erro ao carregar dados do cliente');
+      }
+    };
+
     if (clientId) {
-      refreshServices(clientId);
-      const clients = getClients();
-      const client = clients.find(c => c.id === clientId);
-      setCurrentClient(client || null);
+      loadClientAndServices();
     }
   }, [clientId]);
 
@@ -110,6 +122,10 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   };
 
   const handleDeleteService = async (serviceId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este serviço?')) {
+      return;
+    }
+    
     try {
       await deleteService(serviceId);
       await refreshServices(clientId);
@@ -122,7 +138,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
 
   const handleDownload = async (service: Service) => {
     if (!currentClient) {
-      toast.error("Cliente não encontrado");
+      toast.error("Cliente não encontrado. Tente recarregar a página.");
       return;
     }
     
@@ -137,14 +153,15 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       document.body.removeChild(link);
       URL.revokeObjectURL(pdfUrl);
       toast.success("PDF gerado com sucesso!");
-    } catch {
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF");
     }
   };
 
   const handlePrint = async (service: Service) => {
     if (!currentClient) {
-      toast.error("Cliente não encontrado");
+      toast.error("Cliente não encontrado. Tente recarregar a página.");
       return;
     }
     
@@ -170,12 +187,6 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF para impressão");
     }
-  };
-
-  const handleServiceClick = (serviceId: string) => {
-    const searchParams = new URLSearchParams();
-    searchParams.set('serviceId', serviceId);
-    navigate(`/services/${clientId}?${searchParams.toString()}`);
   };
 
   useEffect(() => {
@@ -241,10 +252,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
               <div
                 key={service.id}
                 data-service-id={service.id}
-                onClick={() => handleServiceClick(service.id)}
-                className={`bg-white rounded-lg p-2 shadow-sm border cursor-pointer
-                  ${service.id === serviceToScrollId ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-gray-100'}
-                  hover:border-gray-200 transition-colors`}
+                className="bg-white rounded-lg p-2 shadow-sm border"
               >
                 <div className="flex justify-between items-start">
                   <h3 className="font-medium text-sm">{service.type}</h3>
@@ -295,10 +303,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
               <div
                 key={service.id}
                 ref={service.id === serviceToScrollId ? serviceRef : null}
-                onClick={() => handleServiceClick(service.id)}
-                className={`bg-white rounded-lg p-2.5 shadow-sm border cursor-pointer
-                  ${service.id === serviceToScrollId ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'}
-                  hover:border-gray-200 transition-colors`}
+                className="bg-white rounded-lg p-2.5 shadow-sm border"
               >
                 <div className="flex justify-between items-start">
                   <h3 className="font-medium text-sm">{service.type}</h3>

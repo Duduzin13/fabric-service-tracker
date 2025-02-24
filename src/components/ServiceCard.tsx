@@ -1,154 +1,108 @@
-import { useState } from 'react';
-import { Service } from '@/types';
-import { Download, Edit, Trash2, Printer } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { formatDate } from "@/lib/utils";
+import { Service } from "@/types";
+import { Button } from "./ui/button";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { MoreVertical, Pencil, Trash, Printer, Download } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import ServiceForm from "./ServiceForm";
+import { Edit, Trash2 } from "lucide-react";
 
 interface ServiceCardProps {
   service: Service;
-  onUpdate: (service: Service) => void;
-  onDelete: (id: string) => void;
-  onDownload: (service: Service) => void;
-  onPrint: (service: Service) => void;
+  onUpdate: (service: Service) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onDownload: (service: Service) => Promise<void>;
+  onPrint: (service: Service) => Promise<void>;
 }
 
 export function ServiceCard({ service, onUpdate, onDelete, onDownload, onPrint }: ServiceCardProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editedService, setEditedService] = useState(service);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleUpdate = () => {
-    onUpdate(editedService);
-    setIsEditDialogOpen(false);
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsEditing(true);
+  };
+
+  const handleUpdate = async (updatedService: Service) => {
+    try {
+      await onUpdate({
+        ...updatedService,
+        id: service.id,
+        clientId: service.clientId,
+        createdAt: service.createdAt
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Erro ao atualizar:', error);
+    }
   };
 
   return (
-    <div className="mt-2 flex gap-2">
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="icon" className="h-6 w-6">
-            <Edit className="h-3 w-3" />
-          </Button>
-        </DialogTrigger>
+    <>
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Serviço</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Tipo de Serviço
-              </label>
-              <input
-                type="text"
-                value={editedService.type}
-                onChange={(e) =>
-                  setEditedService({ ...editedService, type: e.target.value })
-                }
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Número de Controle
-              </label>
-              <input
-                type="text"
-                value={editedService.controlNumber}
-                onChange={(e) =>
-                  setEditedService({
-                    ...editedService,
-                    controlNumber: e.target.value,
-                  })
-                }
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Descrição
-              </label>
-              <textarea
-                value={editedService.description}
-                onChange={(e) =>
-                  setEditedService({
-                    ...editedService,
-                    description: e.target.value,
-                  })
-                }
-                className="w-full px-3 py-2 border rounded-md min-h-[100px]"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleUpdate}>Salvar</Button>
-          </div>
+          <ServiceForm
+            clientId={service.clientId}
+            initialData={service}
+            onSubmit={handleUpdate}
+          />
         </DialogContent>
       </Dialog>
 
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="outline" size="icon" className="h-6 w-6">
-            <Trash2 className="h-3 w-3 text-destructive" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir este serviço? Esta ação não pode ser
-              desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button variant="outline">Cancelar</Button>
-            <Button
-              variant="destructive"
-              onClick={() => onDelete(service.id)}
-            >
-              Excluir
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <div className="mt-2 flex gap-2">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-6 w-6"
+          onClick={handleEdit}
+        >
+          <Edit className="h-3 w-3" />
+        </Button>
 
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-6 w-6"
-        onClick={() => onDownload(service)}
-      >
-        <Download className="h-3 w-3" />
-      </Button>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-6 w-6"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(service.id);
+          }}
+        >
+          <Trash2 className="h-3 w-3 text-destructive" />
+        </Button>
 
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-6 w-6"
-        onClick={() => onPrint(service)}
-      >
-        <Printer className="h-3 w-3" />
-      </Button>
-    </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-6 w-6"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDownload(service);
+          }}
+        >
+          <Download className="h-3 w-3" />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-6 w-6"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPrint(service);
+          }}
+        >
+          <Printer className="h-3 w-3" />
+        </Button>
+      </div>
+    </>
   );
 } 
