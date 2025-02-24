@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import ClientForm from "@/components/ClientForm";
@@ -8,27 +7,10 @@ import { getFromFirebase } from "@/lib/firebase";
 import { Service } from "@/types";
 
 export default function Index() {
-=======
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import ClientForm from "@/components/ClientForm";
-import ClientList from "@/components/ClientList";
-import ServiceForm from "@/components/ServiceForm";
-import ServiceList from "@/components/ServiceList";
-import { Search } from "lucide-react";
-import { searchServices } from "@/lib/localStorage";
-import { Service } from "@/types";
-import { ServiceCard } from "@/components/ServiceCard";
-
-export default function Index() {
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'clients' | 'services'>('clients');
->>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Service[]>([]);
   const navigate = useNavigate();
 
-<<<<<<< HEAD
   useEffect(() => {
     if (searchTerm.length >= 2) {
       const searchServices = async () => {
@@ -48,17 +30,6 @@ export default function Index() {
         setSearchResults(filtered);
       };
       searchServices();
-=======
-  const handleSelectClient = (clientId: string) => {
-    setSelectedClientId(clientId);
-    setActiveView('services');
-  };
-
-  useEffect(() => {
-    if (searchTerm.length >= 2) {
-      const results = searchServices(searchTerm);
-      setSearchResults(results);
->>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
     } else {
       setSearchResults([]);
     }
