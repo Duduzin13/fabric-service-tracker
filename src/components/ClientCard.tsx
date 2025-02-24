@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from 'react';
 import { Client } from "@/types";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+=======
+import { Client } from "@/types";
+import { useNavigate } from "react-router-dom";
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
 
 interface ClientCardProps {
   client: Client;
@@ -22,6 +27,7 @@ interface ClientCardProps {
   onDelete: (id: string) => void;
 }
 
+<<<<<<< HEAD
 export function ClientCard({ client, onUpdate, onDelete }: ClientCardProps) {
   const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -150,6 +156,23 @@ export function ClientCard({ client, onUpdate, onDelete }: ClientCardProps) {
           </form>
         </DialogContent>
       </Dialog>
+=======
+export function ClientCard({ client }: ClientCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/client/${client.id}`);
+  };
+
+  return (
+    <div 
+      onClick={handleClick}
+      className="p-4 rounded-lg border hover:border-primary cursor-pointer transition-colors"
+    >
+      <h3 className="font-medium text-lg">{client.name}</h3>
+      <p className="text-muted-foreground text-sm">{client.address}</p>
+      <p className="text-muted-foreground text-sm">{client.phone}</p>
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
     </div>
   );
 } 

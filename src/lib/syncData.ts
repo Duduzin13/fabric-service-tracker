@@ -1,4 +1,8 @@
 import { getClients, getClientServices, saveClient, saveService } from './localStorage';
+<<<<<<< HEAD
+=======
+import { Client, Service } from '@/types';
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
 
 export const syncData = async () => {
   try {

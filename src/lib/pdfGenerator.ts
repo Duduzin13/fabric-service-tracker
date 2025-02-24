@@ -44,3 +44,18 @@ export async function generateServicePDF(client: Client, service: Service): Prom
     resolve(blob);
   });
 }
+<<<<<<< HEAD
+=======
+
+const getServiceTypeLabel = (type: string): string => {
+  const types: Record<string, string> = {
+    chair: "Cadeira",
+    sofa: "Sofá",
+    armchair: "Poltrona",
+    pouf: "Pufe",
+    curtain: "Cortina",
+    cover: "Capa"
+  };
+  return types[type] || type;
+};
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100

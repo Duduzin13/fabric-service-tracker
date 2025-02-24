@@ -7,21 +7,31 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ServiceForm from "./ServiceForm";
 import { getClients, saveService, deleteService } from "@/lib/localStorage";
 import { generateServicePDF } from "@/lib/pdfGenerator";
+<<<<<<< HEAD
 import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
+=======
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
 
 interface ServiceListProps {
   clientId: string;
 }
 
 export default function ServiceList({ clientId }: ServiceListProps) {
+<<<<<<< HEAD
   const { services, refreshServices, deleteService } = useServices();
+=======
+  const { services, refreshServices } = useServices();
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
   const navigate = useNavigate();
   const [currentClient, setCurrentClient] = useState<Client | null>(null);
   const [searchParams] = useSearchParams();
   const serviceToScrollId = searchParams.get('serviceId');
   const serviceRef = useRef<HTMLDivElement>(null);
+<<<<<<< HEAD
   const [searchTerm, setSearchTerm] = useState("");
+=======
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
 
   const scrollToServiceMobile = (serviceId: string) => {
     setTimeout(() => {
@@ -58,8 +68,11 @@ export default function ServiceList({ clientId }: ServiceListProps) {
 
   useEffect(() => {
     if (clientId) {
+<<<<<<< HEAD
       console.log('Carregando serviços para cliente:', clientId);
       console.log('Serviços carregados:', services);
+=======
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
       refreshServices(clientId);
       const clients = getClients();
       const foundClient = clients.find(c => c.id === clientId);
@@ -100,9 +113,15 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     }
   };
 
+<<<<<<< HEAD
   const handleDeleteService = async (serviceId: string) => {
     try {
       await deleteService(serviceId);
+=======
+  const handleDeleteService = (serviceId: string) => {
+    try {
+      deleteService(serviceId);
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
       if (clientId) refreshServices(clientId);
       toast.success('Serviço excluído com sucesso!');
     } catch (error) {
@@ -162,6 +181,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     }
   };
 
+<<<<<<< HEAD
   const handleServiceClick = (serviceId: string) => {
     const searchParams = new URLSearchParams();
     searchParams.set('serviceId', serviceId);
@@ -212,6 +232,8 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     })));
   }, [services]);
 
+=======
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
   return (
     <div className="container mx-auto p-4 sm:p-6">
       <div className="flex justify-center gap-2 mb-4 sm:mb-6">
@@ -240,6 +262,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <h2 className="text-base font-medium mb-3">Lista de Serviços</h2>
+<<<<<<< HEAD
           
           <Input
             type="text"
@@ -256,6 +279,14 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 data-service-id={service.id}
                 onClick={() => handleServiceClick(service.id)}
                 className={`bg-white rounded-lg p-2 shadow-sm border cursor-pointer
+=======
+          <div className="grid grid-cols-1 gap-2">
+            {services.map((service) => (
+              <div
+                key={service.id}
+                data-service-id={service.id}
+                className={`bg-white rounded-lg p-2 shadow-sm border 
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
                   ${service.id === serviceToScrollId ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-gray-100'}
                   hover:border-gray-200 transition-colors`}
               >
@@ -267,7 +298,11 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
                 <div className="text-xs text-muted-foreground mt-0.5">
+<<<<<<< HEAD
                   Criado em: {formatDate(service.createdAt)}
+=======
+                  Criado em: {new Date(service.createdAt).toLocaleDateString()}
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
                 </div>
                 <ServiceCard
                   service={service}
@@ -294,6 +329,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
 
         <div className="bg-card p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-medium mb-4">Lista de Serviços</h2>
+<<<<<<< HEAD
           
           <Input
             type="text"
@@ -310,6 +346,14 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 ref={service.id === serviceToScrollId ? serviceRef : null}
                 onClick={() => handleServiceClick(service.id)}
                 className={`bg-white rounded-lg p-2.5 shadow-sm border cursor-pointer
+=======
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            {services.map((service) => (
+              <div
+                key={service.id}
+                ref={service.id === serviceToScrollId ? serviceRef : null}
+                className={`bg-white rounded-lg p-2.5 shadow-sm border 
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
                   ${service.id === serviceToScrollId ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'}
                   hover:border-gray-200 transition-colors`}
               >
@@ -321,7 +365,11 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
                 <div className="text-xs text-muted-foreground mt-0.5">
+<<<<<<< HEAD
                   Criado em: {formatDate(service.createdAt)}
+=======
+                  Criado em: {new Date(service.createdAt).toLocaleDateString()}
+>>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
                 </div>
                 <ServiceCard
                   service={service}
