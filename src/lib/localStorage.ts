@@ -1,104 +1,75 @@
-import { Client, Service } from "@/types";
-
-// Funções para Clientes
-export function getClients(): Client[] {
-  const clients = localStorage.getItem('clients');
-  return clients ? JSON.parse(clients) : [];
-}
-
-export async function saveClient(client: Client) { 
-  try {
-    const clients = getClients();
-    const existingIndex = clients.findIndex(c => c.id === client.id);
-    
-    if (existingIndex >= 0) {
-      clients[existingIndex] = client;
-    } else {
-      clients.push(client);
-    }
-    
-    localStorage.setItem('clients', JSON.stringify(clients));
-    return client;
-  } catch (error) {
-    console.error('Erro ao salvar cliente:', error);
-    throw error;
-  }
-}
-
-export function deleteClient(clientId: string) {
-  const clients = getClients();
-  const filteredClients = clients.filter(c => c.id !== clientId);
-  localStorage.setItem('clients', JSON.stringify(filteredClients));
-  
-  // Também remove os serviços do cliente
-  const services = getAllServices();
-  const filteredServices = services.filter(s => s.clientId !== clientId);
-  localStorage.setItem('services', JSON.stringify(filteredServices));
-}
+import { Service, Client } from '@/types';
 
 // Funções para Serviços
-export function getAllServices(): Service[] {
+export const getAllServices = (): Service[] => {
   const services = localStorage.getItem('services');
   return services ? JSON.parse(services) : [];
-}
+};
 
-export function getClientServices(clientId: string): Service[] {
-  const allServices = getAllServices();
+export const saveService = (service: Service): void => {
+  const services = getAllServices();
+  const index = services.findIndex(s => s.id === service.id);
   
-  // Se clientId for 'all', retorna todos os serviços
-  if (clientId === 'all') return allServices;
-  
-  // Senão, filtra pelos serviços do cliente específico
-  return allServices.filter((service: Service) => service.clientId === clientId);
-}
-
-export async function saveService(service: Service) {
-  try {
-    const services = getAllServices();
-    const existingIndex = services.findIndex(s => s.id === service.id);
-    
-    if (existingIndex >= 0) {
-      services[existingIndex] = service;
-    } else {
-      services.push(service);
-    }
-    
-    localStorage.setItem('services', JSON.stringify(services));
-    return service;
-  } catch (error) {
-    console.error('Erro ao salvar serviço:', error);
-    throw error;
+  if (index >= 0) {
+    services[index] = service;
+  } else {
+    services.push(service);
   }
-}
+  
+  localStorage.setItem('services', JSON.stringify(services));
+};
 
-export function deleteService(serviceId: string) {
+export const deleteService = (serviceId: string): void => {
   const services = getAllServices();
   const filteredServices = services.filter(s => s.id !== serviceId);
   localStorage.setItem('services', JSON.stringify(filteredServices));
-}
+};
 
-// Funções Auxiliares
-export function clearAllData() {
-  localStorage.removeItem('clients');
-  localStorage.removeItem('services');
-}
+// Funções para Clientes
+export const getClients = (): Client[] => {
+  const clients = localStorage.getItem('clients');
+  return clients ? JSON.parse(clients) : [];
+};
 
-export function hasData(): boolean {
-  return !!localStorage.getItem('clients') || !!localStorage.getItem('services');
-}
-
-export function isControlNumberUnique(controlNumber: string): boolean {
-  const allServices = getAllServices();
-  return !allServices.some(service => service.controlNumber === controlNumber);
-}
-
-export function searchServices(searchTerm: string): Service[] {
-  const allServices = getAllServices();
-  if (!searchTerm) return [];
+export const saveClient = (client: Client): void => {
+  const clients = getClients();
+  const index = clients.findIndex(c => c.id === client.id);
   
-  return allServices.filter(service => 
-    service.controlNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-}
+  if (index >= 0) {
+    clients[index] = client;
+  } else {
+    clients.push(client);
+  }
+  
+  localStorage.setItem('clients', JSON.stringify(clients));
+};
+
+export const deleteClient = (clientId: string): void => {
+  const clients = getClients();
+  const filteredClients = clients.filter(c => c.id !== clientId);
+  localStorage.setItem('clients', JSON.stringify(filteredClients));
+};
+
+export const isControlNumberUnique = (controlNumber: string): boolean => {
+  const services = getAllServices();
+  return !services.some(service => service.controlNumber === controlNumber);
+};
+
+export const searchServices = (searchTerm: string): Service[] => {
+  const services = getAllServices();
+  if (!searchTerm.trim()) return services;
+  
+  const search = searchTerm.toLowerCase().trim();
+  
+  return services.filter(service => {
+    const serviceNumber = String(service.controlNumber)
+      .replace('#', '')
+      .toLowerCase();
+      
+    return (
+      serviceNumber.includes(search) ||
+      service.type.toLowerCase().includes(search) ||
+      service.description.toLowerCase().includes(search)
+    );
+  });
+}; 

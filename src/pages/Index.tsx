@@ -11,6 +11,8 @@ export default function Index() {
   const [searchResults, setSearchResults] = useState<Service[]>([]);
   const navigate = useNavigate();
 
+  const filteredServices = searchServices(searchTerm);
+
   useEffect(() => {
     if (searchTerm.length >= 2) {
       const results = searchServices(searchTerm);

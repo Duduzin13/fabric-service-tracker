@@ -18,7 +18,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react-dom"],
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
