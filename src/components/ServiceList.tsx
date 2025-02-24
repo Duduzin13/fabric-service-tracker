@@ -157,15 +157,24 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       const pdfBlob = await generateServicePDF(currentClient, service);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       
+      // Cria um iframe oculto
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = pdfUrl;
       document.body.appendChild(iframe);
       
+      // Quando o iframe carregar, chama a impressão
       iframe.onload = () => {
-        iframe.contentWindow?.print();
+        try {
+          iframe.contentWindow?.print();
+        } catch (error) {
+          console.error('Erro ao imprimir:', error);
+          // Fallback: abre em nova aba se a impressão falhar
+          window.open(pdfUrl, '_blank');
+        }
       };
 
+      // Limpa o iframe após a impressão
       window.onafterprint = () => {
         document.body.removeChild(iframe);
         URL.revokeObjectURL(pdfUrl);

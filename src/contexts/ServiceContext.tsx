@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Service } from '@/types';
-import { saveToFirebase, getFromFirebase, deleteFromFirebase } from '@/lib/firebase';
+import { getFromFirebase, saveToFirebase, deleteFromFirebase } from '@/lib/firebase';
 
 interface ServiceContextType {
   services: Service[];
@@ -13,22 +13,34 @@ const ServiceContext = createContext<ServiceContextType | undefined>(undefined);
 
 export function ServiceProvider({ children }: { children: ReactNode }) {
   const [services, setServices] = useState<Service[]>([]);
+  const [currentClientId, setCurrentClientId] = useState<string | null>(null);
 
   const refreshServices = async (clientId: string) => {
     try {
+      setCurrentClientId(clientId);
       const allServices = await getFromFirebase<Service>('services');
       const clientServices = allServices.filter(s => s.clientId === clientId);
       setServices(clientServices);
     } catch (error) {
       console.error('Erro ao carregar serviços:', error);
-      throw error;
+      setServices([]);
     }
   };
+
+  // Limpa os serviços quando o componente é desmontado
+  useEffect(() => {
+    return () => {
+      setServices([]);
+      setCurrentClientId(null);
+    };
+  }, []);
 
   const saveService = async (service: Service) => {
     try {
       await saveToFirebase('services', service);
-      await refreshServices(service.clientId);
+      if (currentClientId === service.clientId) {
+        await refreshServices(service.clientId);
+      }
     } catch (error) {
       console.error('Erro ao salvar serviço:', error);
       throw error;
@@ -37,12 +49,10 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
 
   const deleteService = async (serviceId: string) => {
     try {
-      // Encontra o serviço para pegar o clientId antes de deletar
-      const service = services.find(s => s.id === serviceId);
-      if (!service) throw new Error('Serviço não encontrado');
-      
       await deleteFromFirebase('services', serviceId);
-      await refreshServices(service.clientId);
+      if (currentClientId) {
+        await refreshServices(currentClientId);
+      }
     } catch (error) {
       console.error('Erro ao deletar serviço:', error);
       throw error;
