@@ -5,11 +5,7 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
-<<<<<<< HEAD
-  status = 200 
-=======
   status = 200
 
 [build.environment]
-  NODE_VERSION = "18" 
->>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
+  NODE_VERSION = "18"
