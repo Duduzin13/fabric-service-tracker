@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Service } from "@/types";
-import { useServices } from '@/contexts/ServiceContext';
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";

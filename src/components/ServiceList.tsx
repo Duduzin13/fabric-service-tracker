@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ServiceCard } from "./ServiceCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ServiceForm from "./ServiceForm";
-import { getClients, saveService, deleteService } from "@/lib/localStorage";
+import { getClients, saveService } from "@/lib/localStorage";
 import { generateServicePDF } from "@/lib/pdfGenerator";
 import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
