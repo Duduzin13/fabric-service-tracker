@@ -8,7 +8,7 @@ import { Textarea } from "./ui/textarea";
 interface ServiceFormProps {
   clientId: string;
   initialData?: Service;
-  onSubmit: (service: Service) => void;
+  onSubmit: (service: Service) => Promise<void>;
 }
 
 export default function ServiceForm({ clientId, initialData, onSubmit }: ServiceFormProps) {
@@ -17,6 +17,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
     description: initialData?.description || '',
     controlNumber: initialData?.controlNumber || ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,18 +27,20 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
       return;
     }
 
-    const service: Service = {
-      id: initialData?.id || crypto.randomUUID(),
-      clientId,
-      type: formData.type,
-      description: formData.description,
-      controlNumber: formData.controlNumber,
-      createdAt: initialData?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
     try {
+      setIsSubmitting(true);
+      const service: Service = {
+        id: initialData?.id || crypto.randomUUID(),
+        clientId,
+        type: formData.type,
+        description: formData.description,
+        controlNumber: formData.controlNumber,
+        createdAt: initialData?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
       await onSubmit(service);
+      
       if (!initialData) {
         setFormData({
           type: '',
@@ -49,6 +52,8 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
     } catch (error) {
       console.error(error);
       toast.error(initialData ? 'Erro ao atualizar serviço' : 'Erro ao cadastrar serviço');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -91,8 +96,12 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         />
       </div>
 
-      <Button type="submit" className="w-full">
-        {initialData ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Salvando...' : (initialData ? 'Atualizar Serviço' : 'Cadastrar Serviço')}
       </Button>
     </form>
   );

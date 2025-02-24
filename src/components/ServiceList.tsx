@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ServiceCard } from "./ServiceCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ServiceForm from "./ServiceForm";
-import { getClients, saveService } from "@/lib/localStorage";
+import { getClients } from "@/lib/localStorage";
 import { generateServicePDF } from "@/lib/pdfGenerator";
 import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface ServiceListProps {
 }
 
 export default function ServiceList({ clientId }: ServiceListProps) {
-  const { services, refreshServices, deleteService } = useServices();
+  const { services, refreshServices, saveService, deleteService } = useServices();
   const navigate = useNavigate();
   const [currentClient, setCurrentClient] = useState<Client | null>(null);
   const [searchParams] = useSearchParams();
@@ -56,6 +56,16 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     }, 2000);
   };
 
+  // Filtra os serviços baseado no termo de busca
+  const filteredServices = services.filter(service => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      service.controlNumber.toLowerCase().includes(searchLower) ||
+      service.type.toLowerCase().includes(searchLower) ||
+      service.description.toLowerCase().includes(searchLower)
+    );
+  });
+
   useEffect(() => {
     if (clientId) {
       refreshServices(clientId);
@@ -80,20 +90,21 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   const handleSubmitService = async (service: Service) => {
     try {
       await saveService(service);
-      refreshServices(clientId);
-      toast.success('Serviço salvo com sucesso!');
+      await refreshServices(clientId); // Recarrega a lista após salvar
+      toast.success('Serviço cadastrado com sucesso!');
     } catch (error) {
-      toast.error('Erro ao salvar serviço');
-      console.error(error);
+      console.error('Erro ao salvar serviço:', error);
+      toast.error('Erro ao cadastrar serviço');
     }
   };
 
-  const handleUpdateService = (updatedService: Service) => {
+  const handleUpdateService = async (service: Service) => {
     try {
-      saveService(updatedService);
-      if (clientId) refreshServices(clientId);
+      await saveService(service);
+      await refreshServices(clientId);
       toast.success('Serviço atualizado com sucesso!');
     } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
       toast.error('Erro ao atualizar serviço');
     }
   };
@@ -101,9 +112,11 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   const handleDeleteService = async (serviceId: string) => {
     try {
       await deleteService(serviceId);
-      if (clientId) refreshServices(clientId);
+      await refreshServices(clientId);
+      toast.success('Serviço excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao deletar serviço:', error);
+      toast.error('Erro ao excluir serviço');
     }
   };
 
@@ -164,29 +177,6 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     searchParams.set('serviceId', serviceId);
     navigate(`/services/${clientId}?${searchParams.toString()}`);
   };
-
-  const filteredServices = services.filter(service => {
-    if (!searchTerm.trim()) return true;
-    
-    // Simplifica o termo de busca
-    const search = searchTerm.trim();
-    
-    // Simplifica o número do serviço (remove '#' e espaços)
-    const serviceNumber = String(service.controlNumber || '')
-      .replace('#', '')
-      .trim();
-    
-    // Busca simples que funciona para qualquer número
-    return (
-      // Compara os números de forma flexível
-      serviceNumber === search || // Correspondência exata
-      serviceNumber.includes(search) || // Correspondência parcial
-      search.includes(serviceNumber) || // Correspondência inversa
-      // Busca também no tipo e descrição
-      service.type.toLowerCase().includes(search.toLowerCase()) ||
-      service.description.toLowerCase().includes(search.toLowerCase())
-    );
-  });
 
   useEffect(() => {
     console.log('Termo de busca:', searchTerm);
