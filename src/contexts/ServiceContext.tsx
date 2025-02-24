@@ -16,22 +16,49 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
   const [services, setServices] = useState<Service[]>([]);
 
   const refreshServices = async (clientId: string) => {
-    const allServices = await getFromFirebase('services') as Service[];
-    const clientServices = allServices.filter(s => s.clientId === clientId);
-    setServices(clientServices);
+    try {
+      const allServices = await getFromFirebase<Service>('services');
+      const clientServices = allServices.filter(s => s.clientId === clientId);
+      setServices(clientServices);
+    } catch (error) {
+      console.error('Erro ao carregar serviços:', error);
+      throw error;
+    }
   };
 
   const saveService = async (service: Service) => {
-    await saveToFirebase('services', service);
+    try {
+      await saveToFirebase('services', service);
+      await refreshServices(service.clientId);
+    } catch (error) {
+      console.error('Erro ao salvar serviço:', error);
+      throw error;
+    }
   };
 
   const updateService = async (service: Service) => {
-    const { id, ...data } = service;
-    await updateInFirebase('services', id, data);
+    try {
+      const { id, ...data } = service;
+      await updateInFirebase('services', id, data);
+      await refreshServices(service.clientId);
+    } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
+      throw error;
+    }
   };
 
   const deleteService = async (serviceId: string) => {
-    await deleteFromFirebase('services', serviceId);
+    try {
+      await deleteFromFirebase('services', serviceId);
+      // Recarrega a lista após deletar
+      const currentClientId = services[0]?.clientId;
+      if (currentClientId) {
+        await refreshServices(currentClientId);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar serviço:', error);
+      throw error;
+    }
   };
 
   return (
