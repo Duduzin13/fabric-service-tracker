@@ -13,7 +13,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    rollupOptions: undefined
+    minify: 'terser',
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
-  base: './'
+  base: '/'
 });
