@@ -157,29 +157,28 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       const pdfBlob = await generateServicePDF(currentClient, service);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       
-      // Cria um iframe oculto
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = pdfUrl;
-      document.body.appendChild(iframe);
+      // Cria um iframe para impressão
+      const printFrame = document.createElement('iframe');
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      printFrame.src = pdfUrl;
       
-      // Quando o iframe carregar, chama a impressão
-      iframe.onload = () => {
-        try {
-          iframe.contentWindow?.print();
-        } catch (error) {
-          console.error('Erro ao imprimir:', error);
-          // Fallback: abre em nova aba se a impressão falhar
-          window.open(pdfUrl, '_blank');
-        }
+      document.body.appendChild(printFrame);
+      
+      printFrame.onload = () => {
+        printFrame.contentWindow?.print();
+        
+        // Remove o iframe após um tempo
+        setTimeout(() => {
+          document.body.removeChild(printFrame);
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
       };
 
-      // Limpa o iframe após a impressão
-      window.onafterprint = () => {
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(pdfUrl);
-        window.onafterprint = null;
-      };
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF para impressão");
