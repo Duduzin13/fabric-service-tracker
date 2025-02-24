@@ -6,7 +6,6 @@ import { ServiceCard } from "./ServiceCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ServiceForm from "./ServiceForm";
 import { generateServicePDF } from "@/lib/pdfGenerator";
-import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
 import { getFromFirebase } from '@/lib/firebase';
 
@@ -21,7 +20,6 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   const [searchParams] = useSearchParams();
   const serviceToScrollId = searchParams.get('serviceId');
   const serviceRef = useRef<HTMLDivElement>(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const scrollToServiceMobile = (serviceId: string) => {
     setTimeout(() => {
@@ -55,16 +53,6 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       element.classList.remove('animate-pulse');
     }, 2000);
   };
-
-  // Filtra os serviços baseado no termo de busca
-  const filteredServices = services.filter(service => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      service.controlNumber.toLowerCase().includes(searchLower) ||
-      service.type.toLowerCase().includes(searchLower) ||
-      service.description.toLowerCase().includes(searchLower)
-    );
-  });
 
   useEffect(() => {
     const loadClientAndServices = async () => {
@@ -190,13 +178,6 @@ export default function ServiceList({ clientId }: ServiceListProps) {
   };
 
   useEffect(() => {
-    console.log('Termo de busca:', searchTerm);
-    console.log('Total de serviços:', services.length);
-    console.log('Serviços filtrados:', filteredServices.length);
-    console.log('Primeiro serviço:', services[0]);
-  }, [searchTerm, services, filteredServices]);
-
-  useEffect(() => {
     if (clientId) {
       console.log('Carregando serviços para cliente:', clientId);
       refreshServices(clientId);
@@ -239,16 +220,8 @@ export default function ServiceList({ clientId }: ServiceListProps) {
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <h2 className="text-base font-medium mb-3">Lista de Serviços</h2>
           
-          <Input
-            type="text"
-            placeholder="Buscar por número, tipo ou descrição..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mb-3"
-          />
-
           <div className="grid grid-cols-1 gap-2">
-            {filteredServices.map((service) => (
+            {services.map((service) => (
               <div
                 key={service.id}
                 data-service-id={service.id}
@@ -290,16 +263,8 @@ export default function ServiceList({ clientId }: ServiceListProps) {
         <div className="bg-card p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-medium mb-4">Lista de Serviços</h2>
           
-          <Input
-            type="text"
-            placeholder="Buscar por número, tipo ou descrição..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mb-3"
-          />
-
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredServices.map((service) => (
+            {services.map((service) => (
               <div
                 key={service.id}
                 ref={service.id === serviceToScrollId ? serviceRef : null}
