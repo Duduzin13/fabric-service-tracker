@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Service } from "@/types";
 import { useServices } from '@/contexts/ServiceContext';
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 interface ServiceFormProps {
   clientId: string;
@@ -10,15 +13,16 @@ interface ServiceFormProps {
 }
 
 export default function ServiceForm({ clientId, initialData, onSubmit }: ServiceFormProps) {
-  const [type, setType] = useState(initialData?.type || '');
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [controlNumber, setControlNumber] = useState(initialData?.controlNumber || '');
-  const { refreshServices } = useServices();
+  const [formData, setFormData] = useState({
+    type: initialData?.type || '',
+    description: initialData?.description || '',
+    controlNumber: initialData?.controlNumber || ''
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!type || !description || !controlNumber) {
+    if (!formData.type || !formData.description || !formData.controlNumber) {
       toast.error('Preencha todos os campos');
       return;
     }
@@ -26,9 +30,9 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
     const service: Service = {
       id: initialData?.id || crypto.randomUUID(),
       clientId,
-      type,
-      description,
-      controlNumber,
+      type: formData.type,
+      description: formData.description,
+      controlNumber: formData.controlNumber,
       createdAt: initialData?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -36,11 +40,12 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
     try {
       await onSubmit(service);
       if (!initialData) {
-        setType('');
-        setDescription('');
-        setControlNumber('');
+        setFormData({
+          type: '',
+          description: '',
+          controlNumber: ''
+        });
       }
-      refreshServices(clientId);
       toast.success(initialData ? 'Serviço atualizado!' : 'Serviço cadastrado!');
     } catch (error) {
       console.error(error);
@@ -51,52 +56,45 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="type" className="block mb-1">
+        <label htmlFor="type" className="block text-sm font-medium mb-1">
           Tipo de Serviço
         </label>
-        <input
+        <Input
           id="type"
-          type="text"
           required
-          className="w-full px-3 py-2 border rounded-md"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
+          value={formData.type}
+          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
         />
       </div>
 
       <div>
-        <label htmlFor="controlNumber" className="block mb-1">
+        <label htmlFor="controlNumber" className="block text-sm font-medium mb-1">
           Número de Controle
         </label>
-        <input
+        <Input
           id="controlNumber"
-          type="text"
           required
-          className="w-full px-3 py-2 border rounded-md"
-          value={controlNumber}
-          onChange={(e) => setControlNumber(e.target.value)}
+          value={formData.controlNumber}
+          onChange={(e) => setFormData({ ...formData, controlNumber: e.target.value })}
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block mb-1">
+        <label htmlFor="description" className="block text-sm font-medium mb-1">
           Descrição
         </label>
-        <textarea
+        <Textarea
           id="description"
           required
-          className="w-full px-3 py-2 border rounded-md min-h-[100px]"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          className="min-h-[100px]"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
         />
       </div>
 
-      <button
-        type="submit"
-        className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:opacity-90 transition-opacity"
-      >
+      <Button type="submit" className="w-full">
         {initialData ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
-      </button>
+      </Button>
     </form>
   );
 }

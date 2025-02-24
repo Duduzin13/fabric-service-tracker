@@ -2,13 +2,20 @@ import { useState } from "react";
 import { Client } from "@/types";
 import { useClients } from '@/contexts/ClientContext';
 import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
-export default function ClientForm() {
+interface ClientFormProps {
+  initialData?: Client;
+  onSubmit?: () => void;
+}
+
+export default function ClientForm({ initialData, onSubmit }: ClientFormProps) {
   const { saveClient } = useClients();
   const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    phone: "",
+    name: initialData?.name || "",
+    address: initialData?.address || "",
+    phone: initialData?.phone || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,69 +23,70 @@ export default function ClientForm() {
     
     try {
       const client: Client = {
-        id: crypto.randomUUID(),
+        id: initialData?.id || crypto.randomUUID(),
         name: formData.name,
         address: formData.address,
         phone: formData.phone,
-        createdAt: new Date().toISOString()
+        createdAt: initialData?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
       await saveClient(client);
-      toast.success("Cliente cadastrado com sucesso!");
-      setFormData({ name: "", address: "", phone: "" });
+      toast.success(initialData ? "Cliente atualizado com sucesso!" : "Cliente cadastrado com sucesso!");
+      if (!initialData) {
+        setFormData({ name: "", address: "", phone: "" });
+      }
+      if (onSubmit) onSubmit();
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao cadastrar cliente");
+      toast.error(initialData ? "Erro ao atualizar cliente" : "Erro ao cadastrar cliente");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="name" className="block mb-1">
+        <label htmlFor="name" className="block text-sm font-medium mb-1">
           Nome
         </label>
-        <input
+        <Input
           id="name"
           type="text"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         />
       </div>
       <div>
-        <label htmlFor="address" className="block mb-1">
+        <label htmlFor="address" className="block text-sm font-medium mb-1">
           Endereço
         </label>
-        <input
+        <Input
           id="address"
           type="text"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={formData.address}
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
         />
       </div>
       <div>
-        <label htmlFor="phone" className="block mb-1">
+        <label htmlFor="phone" className="block text-sm font-medium mb-1">
           Telefone
         </label>
-        <input
+        <Input
           id="phone"
           type="tel"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
         />
       </div>
-      <button
+      <Button
         type="submit"
-        className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:opacity-90 transition-opacity"
+        className="w-full"
       >
-        Cadastrar Cliente
-      </button>
+        {initialData ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
+      </Button>
     </form>
   );
 }
