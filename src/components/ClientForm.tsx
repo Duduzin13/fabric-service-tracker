@@ -18,9 +18,35 @@ export default function ClientForm({ initialData, onSubmit }: ClientFormProps) {
     phone: initialData?.phone || "",
   });
 
+  const formatPhone = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Formata o número conforme a quantidade de dígitos
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{2})/, '($1) ')
+        .replace(/(\d{4,5})/, '$1-')
+        .replace(/(-\d{4})\d+?$/, '$1');
+    }
+    return numbers.slice(0, 11);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    setFormData({ ...formData, phone: formatted });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Valida o telefone
+    const phoneNumbers = formData.phone.replace(/\D/g, '');
+    if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
+      toast.error("Número de telefone inválido");
+      return;
+    }
+
     try {
       const client: Client = {
         id: initialData?.id || crypto.randomUUID(),
@@ -77,8 +103,10 @@ export default function ClientForm({ initialData, onSubmit }: ClientFormProps) {
           id="phone"
           type="tel"
           required
+          placeholder="(00) 00000-0000"
           value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          onChange={handlePhoneChange}
+          maxLength={15}
         />
       </div>
       <Button

@@ -6,11 +6,22 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import ClientForm from "./ClientForm";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export default function ClientList() {
   const navigate = useNavigate();
   const { clients, refreshClients, deleteClient } = useClients();
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredClients = clients.filter(client => {
+    const search = searchTerm.toLowerCase();
+    return (
+      client.name.toLowerCase().includes(search) ||
+      client.phone.includes(search) ||
+      client.address.toLowerCase().includes(search)
+    );
+  });
 
   useEffect(() => {
     refreshClients();
@@ -34,6 +45,14 @@ export default function ClientList() {
 
   return (
     <div className="space-y-4">
+      <Input
+        type="text"
+        placeholder="Buscar por nome, telefone ou endereço..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4"
+      />
+
       <Dialog open={!!editingClient} onOpenChange={() => setEditingClient(null)}>
         <DialogContent>
           <DialogHeader>
@@ -51,10 +70,12 @@ export default function ClientList() {
         </DialogContent>
       </Dialog>
 
-      {clients.length === 0 ? (
-        <p className="text-center text-muted-foreground">Nenhum cliente cadastrado</p>
+      {filteredClients.length === 0 ? (
+        <p className="text-center text-muted-foreground">
+          {searchTerm ? "Nenhum cliente encontrado" : "Nenhum cliente cadastrado"}
+        </p>
       ) : (
-        clients.map((client) => (
+        filteredClients.map((client) => (
           <div
             key={client.id}
             className="p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
