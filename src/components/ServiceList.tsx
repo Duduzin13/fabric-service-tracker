@@ -131,6 +131,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     }
     
     try {
+      // Usa a mesma função para gerar o PDF
       const pdfBlob = await generateServicePDF(currentClient, service);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
@@ -157,27 +158,61 @@ export default function ServiceList({ clientId }: ServiceListProps) {
       const pdfBlob = await generateServicePDF(currentClient, service);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       
-      // Cria um iframe para impressão
-      const printFrame = document.createElement('iframe');
-      printFrame.style.position = 'fixed';
-      printFrame.style.right = '0';
-      printFrame.style.bottom = '0';
-      printFrame.style.width = '0';
-      printFrame.style.height = '0';
-      printFrame.style.border = '0';
-      printFrame.src = pdfUrl;
+      // Detecta se é dispositivo móvel
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       
-      document.body.appendChild(printFrame);
-      
-      printFrame.onload = () => {
-        printFrame.contentWindow?.print();
+      if (isMobile) {
+        // Para dispositivos móveis, abre em uma nova janela
+        const printWindow = window.open(pdfUrl, '_blank');
+        if (!printWindow) {
+          toast.error('Erro ao abrir visualização de impressão. Verifique se os popups estão permitidos.');
+          return;
+        }
         
-        // Remove o iframe após um tempo
+        // Aguarda a janela carregar e chama a impressão
         setTimeout(() => {
+          try {
+            printWindow.print();
+          } catch (error) {
+            console.error('Erro ao imprimir:', error);
+            toast.error('Erro ao abrir diálogo de impressão');
+          }
+        }, 1000);
+        
+        // Limpa recursos quando a janela for fechada
+        printWindow.onafterprint = () => {
+          printWindow.close();
+          URL.revokeObjectURL(pdfUrl);
+        };
+      } else {
+        // Para desktop, mantém o iframe
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'fixed';
+        printFrame.style.right = '0';
+        printFrame.style.bottom = '0';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        
+        document.body.appendChild(printFrame);
+        printFrame.src = pdfUrl;
+        
+        printFrame.onload = () => {
+          try {
+            printFrame.contentWindow?.focus();
+            printFrame.contentWindow?.print();
+          } catch (error) {
+            console.error('Erro ao imprimir:', error);
+            toast.error('Erro ao abrir diálogo de impressão');
+          }
+        };
+
+        window.onafterprint = () => {
           document.body.removeChild(printFrame);
           URL.revokeObjectURL(pdfUrl);
-        }, 1000);
-      };
+          window.onafterprint = null;
+        };
+      }
 
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);

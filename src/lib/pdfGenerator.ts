@@ -45,8 +45,6 @@ export async function generateServicePDF(client: Client, service: Service): Prom
   });
 }
 
-
-
 const getServiceTypeLabel = (type: string): string => {
   const types: Record<string, string> = {
     chair: "Cadeira",
