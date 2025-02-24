@@ -102,3 +102,4 @@ export function searchServices(searchTerm: string): Service[] {
     service.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 }
+

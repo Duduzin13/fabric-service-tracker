@@ -4,10 +4,10 @@ export interface Client {
   address: string;
   phone: string;
   createdAt: string;
-<<<<<<< HEAD
+
   updatedAt: string;
-=======
->>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
+
+
 }
 
 export interface Service {
@@ -17,8 +17,9 @@ export interface Service {
   controlNumber: string;
   description: string;
   createdAt: string;
-<<<<<<< HEAD
+
   updatedAt: string;
-=======
->>>>>>> cbabc0a5850ca5786bf5c5fd461dc15c87062100
+
+
 }
+
