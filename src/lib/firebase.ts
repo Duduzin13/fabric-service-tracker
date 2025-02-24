@@ -26,7 +26,7 @@ export const deleteFromFirebase = async (collectionName: string, id: string) => 
   return await deleteDoc(doc(db, collectionName, id));
 };
 
-export const getFromFirebase = async (collectionName: string) => {
+export const getFromFirebase = async <T>(collectionName: string): Promise<T[]> => {
   const querySnapshot = await getDocs(collection(db, collectionName));
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[];
 };

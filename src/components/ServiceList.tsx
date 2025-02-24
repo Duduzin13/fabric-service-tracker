@@ -8,13 +8,14 @@ import ServiceForm from "./ServiceForm";
 import { getClients, saveService, deleteService } from "@/lib/localStorage";
 import { generateServicePDF } from "@/lib/pdfGenerator";
 import { Input } from "./ui/input";
+import { formatDate } from "@/lib/utils";
 
 interface ServiceListProps {
   clientId: string;
 }
 
 export default function ServiceList({ clientId }: ServiceListProps) {
-  const { services, refreshServices } = useServices();
+  const { services, refreshServices, deleteService } = useServices();
   const navigate = useNavigate();
   const [currentClient, setCurrentClient] = useState<Client | null>(null);
   const [searchParams] = useSearchParams();
@@ -99,9 +100,9 @@ export default function ServiceList({ clientId }: ServiceListProps) {
     }
   };
 
-  const handleDeleteService = (serviceId: string) => {
+  const handleDeleteService = async (serviceId: string) => {
     try {
-      deleteService(serviceId);
+      await deleteService(serviceId);
       if (clientId) refreshServices(clientId);
       toast.success('Serviço excluído com sucesso!');
     } catch (error) {
@@ -266,7 +267,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Criado em: {new Date(service.createdAt).toLocaleDateString()}
+                  Criado em: {formatDate(service.createdAt)}
                 </div>
                 <ServiceCard
                   service={service}
@@ -320,7 +321,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Criado em: {new Date(service.createdAt).toLocaleDateString()}
+                  Criado em: {formatDate(service.createdAt)}
                 </div>
                 <ServiceCard
                   service={service}

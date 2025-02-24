@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Client } from '@/types';
-import { getClients } from '@/lib/localStorage';
+import { getFromFirebase, saveToFirebase, deleteFromFirebase, updateInFirebase } from '@/lib/firebase';
 
 interface ClientContextType {
   clients: Client[];
-  refreshClients: () => void;
+  refreshClients: () => Promise<void>;
+  saveClient: (client: Client) => Promise<void>;
+  deleteClient: (clientId: string) => Promise<void>;
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
@@ -12,13 +14,28 @@ const ClientContext = createContext<ClientContextType | undefined>(undefined);
 export function ClientProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState<Client[]>([]);
 
-  const refreshClients = () => {
-    const updatedClients = getClients();
-    setClients(updatedClients);
+  const refreshClients = async () => {
+    const data = await getFromFirebase<Client>('clients');
+    setClients(data);
+  };
+
+  const saveClient = async (client: Client) => {
+    await saveToFirebase('clients', client);
+    await refreshClients();
+  };
+
+  const deleteClient = async (clientId: string) => {
+    await deleteFromFirebase('clients', clientId);
+    await refreshClients();
   };
 
   return (
-    <ClientContext.Provider value={{ clients, refreshClients }}>
+    <ClientContext.Provider value={{ 
+      clients, 
+      refreshClients, 
+      saveClient, 
+      deleteClient 
+    }}>
       {children}
     </ClientContext.Provider>
   );
@@ -26,7 +43,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
 export function useClients() {
   const context = useContext(ClientContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useClients must be used within a ClientProvider');
   }
   return context;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ClientForm from "@/components/ClientForm";
 import ClientList from "@/components/ClientList";
 import { Search } from "lucide-react";
-import { searchServices } from "@/lib/localStorage";
+import { getFromFirebase } from "@/lib/firebase";
 import { Service } from "@/types";
 
 export default function Index() {
@@ -11,12 +11,25 @@ export default function Index() {
   const [searchResults, setSearchResults] = useState<Service[]>([]);
   const navigate = useNavigate();
 
-  const filteredServices = searchServices(searchTerm);
-
   useEffect(() => {
     if (searchTerm.length >= 2) {
-      const results = searchServices(searchTerm);
-      setSearchResults(results);
+      const searchServices = async () => {
+        const services = await getFromFirebase<Service>('services');
+        const filtered = services.filter(service => {
+          const serviceNumber = String(service.controlNumber)
+            .replace('#', '')
+            .toLowerCase();
+          const search = searchTerm.toLowerCase();
+          
+          return (
+            serviceNumber.includes(search) ||
+            service.type.toLowerCase().includes(search) ||
+            service.description.toLowerCase().includes(search)
+          );
+        });
+        setSearchResults(filtered);
+      };
+      searchServices();
     } else {
       setSearchResults([]);
     }

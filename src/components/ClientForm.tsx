@@ -1,31 +1,32 @@
 import { useState } from "react";
 import { Client } from "@/types";
-import { saveClient } from "@/lib/localStorage";
-import { toast } from "sonner";
 import { useClients } from '@/contexts/ClientContext';
+import { toast } from "sonner";
 
 export default function ClientForm() {
-  const { refreshClients } = useClients();
+  const { saveClient } = useClients();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
     phone: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const client: Client = {
-      id: crypto.randomUUID(),
-      name: formData.name,
-      address: formData.address,
-      phone: formData.phone,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    saveClient(client);
-    refreshClients();
-    toast.success("Cliente cadastrado com sucesso!");
-    setFormData({ name: "", address: "", phone: "" });
+    try {
+      const client: Client = {
+        id: crypto.randomUUID(),
+        ...formData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      await saveClient(client);
+      toast.success("Cliente cadastrado com sucesso!");
+      setFormData({ name: "", address: "", phone: "" });
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao cadastrar cliente");
+    }
   };
 
   return (

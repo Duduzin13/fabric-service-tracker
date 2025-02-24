@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Service } from '@/types';
-import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { saveToFirebase, getFromFirebase, updateInFirebase, deleteFromFirebase } from '@/lib/firebase';
 
 interface ServiceContextType {
   services: Service[];
@@ -17,29 +16,22 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
   const [services, setServices] = useState<Service[]>([]);
 
   const refreshServices = async (clientId: string) => {
-    const servicesRef = collection(db, 'services');
-    const q = query(servicesRef, where("clientId", "==", clientId));
-    const querySnapshot = await getDocs(q);
-    const servicesData = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Service));
-    setServices(servicesData);
+    const allServices = await getFromFirebase('services') as Service[];
+    const clientServices = allServices.filter(s => s.clientId === clientId);
+    setServices(clientServices);
   };
 
   const saveService = async (service: Service) => {
-    await addDoc(collection(db, 'services'), service);
+    await saveToFirebase('services', service);
   };
 
   const updateService = async (service: Service) => {
-    const { id, ...serviceData } = service;
-    const serviceRef = doc(db, 'services', id);
-    await updateDoc(serviceRef, serviceData);
+    const { id, ...data } = service;
+    await updateInFirebase('services', id, data);
   };
 
   const deleteService = async (serviceId: string) => {
-    const serviceRef = doc(db, 'services', serviceId);
-    await deleteDoc(serviceRef);
+    await deleteFromFirebase('services', serviceId);
   };
 
   return (

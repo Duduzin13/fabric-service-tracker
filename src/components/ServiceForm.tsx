@@ -4,48 +4,43 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { isControlNumberUnique } from "@/lib/localStorage";
+import { useServices } from '@/contexts/ServiceContext';
 
 interface ServiceFormProps {
   clientId: string;
   initialData?: Service;
-  onSubmit: (service: Service) => void;
 }
 
-export default function ServiceForm({ clientId, initialData, onSubmit }: ServiceFormProps) {
-  const [type, setType] = useState(initialData?.type || '');
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [controlNumber, setControlNumber] = useState(initialData?.controlNumber || '');
+export default function ServiceForm({ clientId, initialData }: ServiceFormProps) {
+  const { saveService, updateService } = useServices();
+  const [formData, setFormData] = useState({
+    type: initialData?.type || '',
+    description: initialData?.description || '',
+    controlNumber: initialData?.controlNumber || ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const service: Service = {
+        id: initialData?.id || crypto.randomUUID(),
+        clientId,
+        ...formData,
+        createdAt: initialData?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-    if (!type || !description || !controlNumber) {
-      toast.error('Preencha todos os campos');
-      return;
-    }
-
-    if (!initialData && !isControlNumberUnique(controlNumber)) {
-      toast.error('Número de controle já existe');
-      return;
-    }
-
-    const service: Service = {
-      id: initialData?.id || crypto.randomUUID(),
-      clientId,
-      type,
-      description,
-      controlNumber,
-      createdAt: initialData?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    onSubmit(service);
-
-    if (!initialData) {
-      setType('');
-      setDescription('');
-      setControlNumber('');
+      if (initialData) {
+        await updateService(service);
+        toast.success("Serviço atualizado com sucesso!");
+      } else {
+        await saveService(service);
+        toast.success("Serviço cadastrado com sucesso!");
+        setFormData({ type: '', description: '', controlNumber: '' });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(initialData ? "Erro ao atualizar serviço" : "Erro ao cadastrar serviço");
     }
   };
 
@@ -57,8 +52,8 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         </label>
         <Input
           id="type"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
+          value={formData.type}
+          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
           placeholder="Digite o tipo do serviço"
         />
       </div>
@@ -69,8 +64,8 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         </label>
         <Textarea
           id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Digite a descrição do serviço"
           rows={3}
         />
@@ -82,8 +77,8 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
         </label>
         <Input
           id="controlNumber"
-          value={controlNumber}
-          onChange={(e) => setControlNumber(e.target.value)}
+          value={formData.controlNumber}
+          onChange={(e) => setFormData({ ...formData, controlNumber: e.target.value })}
           placeholder="Digite o número de controle"
         />
       </div>
