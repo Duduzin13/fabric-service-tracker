@@ -53,10 +53,10 @@ export default function ClientList() {
   return (
     <div className="space-y-4">
       <Input
-        type="text"
+          type="text"
         placeholder="Buscar por nome, telefone ou endereço..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4"
       />
 

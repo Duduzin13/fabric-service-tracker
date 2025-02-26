@@ -14,12 +14,10 @@ export interface Service {
   id: string;
   clientId: string;
   type: string;
-  controlNumber: string;
   description: string;
+  controlNumber: string;
   createdAt: string;
-
   updatedAt: string;
-
-
+  images?: string[]; // URLs das imagens
 }
 
