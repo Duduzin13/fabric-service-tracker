@@ -128,10 +128,19 @@ export const generateClientOS = (service: Service, client: Client): void => {
   const margin = 20;
   const contentWidth = pageWidth - (margin * 2);
   
-  // Ajustar o cabeçalho
-  const logoWidth = 50; // Largura da logo
-  const logoHeight = 30; // Altura da logo
-  doc.addImage('/public/Logo Stanza Decoro - Grande.png', 'PNG', margin, 10, logoWidth, logoHeight);
+  // Em vez de tentar carregar a imagem, vamos apenas adicionar o texto do nome da empresa
+  // Título da empresa
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(201, 160, 99);
+  doc.text("STANZA DECORO", margin, 20);
+  
+  // Informações da empresa (cabeçalho)
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Tapeçaria de Alto Padrão', margin, 30);
+  doc.text('R. Armando Erse Figueiredo, 143', margin, 35);
+  doc.text('São Paulo - SP, 05785-020', margin, 40);
 
   // Título principal
   doc.setTextColor(0, 0, 0);
@@ -139,31 +148,28 @@ export const generateClientOS = (service: Service, client: Client): void => {
   doc.setFont('helvetica', 'bold');
   doc.text("REGISTRO DE ORDEM DE SERVIÇO", pageWidth / 2, 50, { align: 'center' });
   
-  // Informações da empresa (cabeçalho)
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Tapeçaria de Alto Padrão', margin + 55, 15);
-  doc.text('R. Armando Erse Figueiredo, 143', margin + 55, 20);
-  doc.text('São Paulo - SP, 05785-020', margin + 55, 25);
-  
   // Número da OS e data
   doc.setDrawColor(201, 160, 99);
   doc.setFillColor(250, 245, 235);
-  doc.roundedRect(pageWidth - 75, 10, 50, 20, 3, 3, 'FD');
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(201, 160, 99);
-  doc.text('O.S. Nº:', pageWidth - 70, 18);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(0, 0, 0);
-  doc.text(service.controlNumber, pageWidth - 56, 18);
+  doc.roundedRect(pageWidth - 90, 10, 65, 30, 3, 3, 'FD');
   
+  // Linha O.S.
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(201, 160, 99);
-  doc.text('Data:', pageWidth - 70, 26);
+  doc.setFontSize(12);
+  doc.text('O.S.', pageWidth - 85, 22);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  doc.text(service.controlNumber, pageWidth - 75, 22);
+  
+  // Linha Data
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(201, 160, 99);
+  doc.text('Data:', pageWidth - 85, 32);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
   const currentDate = new Date().toLocaleDateString('pt-BR');
-  doc.text(currentDate, pageWidth - 60, 26);
+  doc.text(currentDate, pageWidth - 73, 32);
   
   // Linha separadora
   doc.setDrawColor(201, 160, 99);
