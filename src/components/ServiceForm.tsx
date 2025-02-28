@@ -82,6 +82,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit }: Service
       deadline: formData.deadline,
       createdAt: initialData?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      images: images,
     };
 
     await onSubmit(service);

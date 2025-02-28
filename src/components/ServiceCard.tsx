@@ -53,6 +53,17 @@ R. Armando Erse Figueiredo, 143 - Jardim Campo Limpo, São Paulo - SP`;
     }
   };
 
+  // Função para lidar com a atualização do serviço e fechar o modal
+  const handleServiceUpdate = async (updatedService: Service) => {
+    try {
+      await onUpdate(updatedService);
+      setIsEditing(false); // Fecha o modal após salvar com sucesso
+    } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
+      // Não fecha o modal em caso de erro
+    }
+  };
+
   console.log(client);
 
   return (
@@ -65,7 +76,7 @@ R. Armando Erse Figueiredo, 143 - Jardim Campo Limpo, São Paulo - SP`;
           <ServiceForm
             clientId={service.clientId}
             initialData={service}
-            onSubmit={onUpdate}
+            onSubmit={handleServiceUpdate}
           />
         </DialogContent>
       </Dialog>
