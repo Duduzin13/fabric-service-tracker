@@ -33,7 +33,7 @@ ${client.city} - ${client.state} - CEP: ${client.cep}
 
 DETALHES DO SERVIÇO
 Serviço Solicitado: ${service.type}
-
+Descrição: ${service.description}
 Valor: R$ ${service.value || "A combinar"}
 Prazo de Entrega: ${service.deadline || "A definir"}
 
