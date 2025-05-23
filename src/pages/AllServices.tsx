@@ -1,4 +1,4 @@
-import AllServices from "@/components/AllServices";
+import AllServices from '@/components/AllServices';
 
 export default function AllServicesPage() {
   return <AllServices />;

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import ClientForm from "@/components/ClientForm";
 import ClientList from "@/components/ClientList";
-import { Search } from "lucide-react";
+import { Search, ListChecks } from "lucide-react";
 import { getFromFirebase } from "@/lib/firebase";
 import { Service } from "@/types";
+import { Button } from "@/components/ui/button";
 
 export default function Index() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,37 +49,26 @@ export default function Index() {
           Clientes
         </button>
 
-        <div className="w-full max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Buscar serviço por número..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-md border border-input bg-background text-sm"
-            />
-            
-            {searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-md border shadow-lg max-h-[60vh] sm:max-h-96 overflow-auto z-50">
-                {searchResults.map(service => (
-                  <div 
-                    key={service.id}
-                    onClick={() => handleServiceClick(service)}
-                    className="p-2 hover:bg-gray-50 border-b last:border-b-0 cursor-pointer"
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className="font-medium">#{service.controlNumber}</span>
-                      <span className="text-sm text-muted-foreground">{service.type}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {service.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Buscar por nome, telefone ou endereço..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 w-full"
+              />
+            </div>
           </div>
+          <Button
+            onClick={() => navigate('/services')}
+            className="ml-4 flex items-center gap-2"
+          >
+            <ListChecks className="h-4 w-4" />
+            Todos os Serviços
+          </Button>
         </div>
       </div>
 

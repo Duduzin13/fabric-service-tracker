@@ -74,6 +74,31 @@ export default function ClientForm({ initialData, onSubmit }: ClientFormProps) {
     }
   };
 
+  const searchAddress = async (street: string, city: string, state: string) => {
+    if (!street || !city) return;
+    const uf = state || 'SP';
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${uf}/${city}/${street}/json/`);
+      const data = await response.json();
+      if (data.erro || data.length === 0) {
+        toast.error('Endereço não encontrado');
+        return;
+      }
+      // Se encontrou um endereço, atualiza os campos com o primeiro resultado
+      if (data[0]) {
+        setFormData(prev => ({
+          ...prev,
+          cep: data[0].cep.replace('-', ''),
+          neighborhood: data[0].bairro,
+          city: data[0].localidade,
+          state: data[0].uf
+        }));
+      }
+    } catch (error) {
+      toast.error('Erro ao buscar endereço');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -166,21 +191,48 @@ export default function ClientForm({ initialData, onSubmit }: ClientFormProps) {
         {/* Endereço preenchido automaticamente */}
         <div>
           <label className="block text-sm font-medium mb-1">Endereço</label>
-          <Input value={formData.street} onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))} className="bg-gray-50" />
+          <Input 
+            value={formData.street} 
+            onChange={(e) => {
+              setFormData(prev => ({ ...prev, street: e.target.value }));
+              if (e.target.value.length >= 3 && formData.city) {
+                searchAddress(e.target.value, formData.city, formData.state);
+              }
+            }} 
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Bairro</label>
-            <Input value={formData.neighborhood} readOnly className="bg-gray-50" />
+            <Input 
+              value={formData.neighborhood} 
+              onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))} 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Cidade</label>
-            <Input value={formData.city} readOnly className="bg-gray-50" />
+            <Input 
+              value={formData.city} 
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, city: e.target.value }));
+                if (formData.street.length >= 3 && e.target.value) {
+                  searchAddress(formData.street, e.target.value, formData.state);
+                }
+              }} 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Estado</label>
-            <Input value={formData.state} readOnly className="bg-gray-50" />
+            <Input 
+              value={formData.state} 
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, state: e.target.value }));
+                if (formData.street.length >= 3 && formData.city) {
+                  searchAddress(formData.street, formData.city, e.target.value);
+                }
+              }} 
+            />
           </div>
         </div>
       </div>
