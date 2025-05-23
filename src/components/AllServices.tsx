@@ -8,6 +8,7 @@ import { Input } from "./ui/input";
 import { formatDate } from "@/lib/utils";
 import { generateServicePDF } from "@/lib/pdfGenerator";
 import { useNavigate } from "react-router-dom";
+import { getFromFirebase } from '@/lib/firebase';
 
 export default function AllServices() {
   const { services, refreshServices, saveService, deleteService } = useServices();
@@ -19,8 +20,9 @@ export default function AllServices() {
   useEffect(() => {
     const loadAllServices = async () => {
       try {
-        // Carrega todos os serviços
-        await refreshServices('');
+        // Busca todos os serviços diretamente do Firebase
+        const allServices = await getFromFirebase<Service>('services');
+        setFilteredServices(allServices);
       } catch (error) {
         console.error('Erro ao carregar serviços:', error);
         toast.error('Erro ao carregar serviços');
@@ -56,7 +58,9 @@ export default function AllServices() {
     
     try {
       await deleteService(serviceId);
-      await refreshServices('');
+      // Recarrega todos os serviços após deletar
+      const allServices = await getFromFirebase<Service>('services');
+      setFilteredServices(allServices);
       toast.success('Serviço excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao deletar serviço:', error);
@@ -113,7 +117,9 @@ export default function AllServices() {
   const handleUpdateService = async (service: Service) => {
     try {
       await saveService(service);
-      await refreshServices('');
+      // Recarrega todos os serviços após atualizar
+      const allServices = await getFromFirebase<Service>('services');
+      setFilteredServices(allServices);
       toast.success('Serviço atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar serviço:', error);
