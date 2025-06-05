@@ -19,8 +19,3 @@ export function formatDate(date: string) {
   });
 }
 
-export function formatCurrency(value: number | undefined): string {
-  if (value === undefined || isNaN(value)) return 'R$ 0,00';
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-

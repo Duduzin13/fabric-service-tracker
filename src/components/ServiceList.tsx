@@ -228,7 +228,7 @@ export default function ServiceList({ clientId }: ServiceListProps) {
                     #{service.controlNumber}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{service.description || 'Sem descrição'}</p>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   Criado em: {formatDate(service.createdAt)}
                 </div>
