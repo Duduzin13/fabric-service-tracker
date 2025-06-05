@@ -242,6 +242,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit, onCancel 
                 min="1"
                 value={item.quantity}
                 onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                className="w-20"
               />
             </div>
             <div className="md:col-span-2">

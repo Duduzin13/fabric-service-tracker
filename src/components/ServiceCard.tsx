@@ -82,40 +82,34 @@ R. Armando Erse Figueiredo, 143 - Jardim Campo Limpo, São Paulo - SP`;
       </Dialog>
 
       {/* Restored Horizontal Button Layout */}
-      <div className="flex flex-wrap gap-2 mt-4 justify-start"> 
-          {/* Edit Button */}
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="flex items-center gap-1">
-            <Edit className="h-3 w-3" /> Editar
-          </Button>
+      <div className="flex flex-wrap gap-1.5 mt-4 justify-start"> 
+        <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="flex items-center gap-1 h-8 px-2">
+          <Edit className="h-3.5 w-3.5" /> Editar
+        </Button>
 
-          {/* Delete Button */}
-          <Button variant="outline" size="sm" onClick={() => onDelete(service.id)} className="text-destructive flex items-center gap-1">
-            <Trash2 className="h-3 w-3" /> Excluir
-          </Button>
+        <Button variant="outline" size="sm" onClick={() => onDelete(service.id)} className="text-destructive flex items-center gap-1 h-8 px-2">
+          <Trash2 className="h-3.5 w-3.5" /> Excluir
+        </Button>
 
-          {/* Download Internal OS Button */}
-          <Button variant="outline" size="sm" onClick={() => onDownload(service)} className="flex items-center gap-1">
-            <Download className="h-3 w-3" /> Baixar OS Interna
-          </Button>
+        <Button variant="outline" size="sm" onClick={() => onDownload(service)} className="flex items-center gap-1 h-8 px-2">
+          <Download className="h-3.5 w-3.5" /> Baixar OS
+        </Button>
 
-          {/* Generate Client OS Button */}
-          <Button variant="outline" size="sm" onClick={handleClientOS} className="flex items-center gap-1">
-            <Send className="h-3 w-3" /> Gerar OS Cliente
-          </Button>
+        <Button variant="outline" size="sm" onClick={handleClientOS} className="flex items-center gap-1 h-8 px-2">
+          <Send className="h-3.5 w-3.5" /> OS Cliente
+        </Button>
 
-          {/* Print Internal OS Button */}
-          <Button variant="outline" size="sm" onClick={() => onPrint(service)} className="flex items-center gap-1">
-            <Printer className="h-3 w-3" /> Imprimir OS Interna
-          </Button>
+        <Button variant="outline" size="sm" onClick={() => onPrint(service)} className="flex items-center gap-1 h-8 px-2">
+          <Printer className="h-3.5 w-3.5" /> Imprimir
+        </Button>
 
-          {/* WhatsApp Button */}
-          <Button 
-            onClick={handleWhatsApp}
-            className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
-            size="sm"
-          >
-            <WhatsappLogo weight="fill" className="h-4 w-4" /> WhatsApp
-          </Button>
+        <Button 
+          onClick={handleWhatsApp}
+          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-8 px-2"
+          size="sm"
+        >
+          <WhatsappLogo weight="fill" className="h-3.5 w-3.5" /> WhatsApp
+        </Button>
       </div>
 
       
