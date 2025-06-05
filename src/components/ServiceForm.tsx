@@ -234,7 +234,7 @@ export default function ServiceForm({ clientId, initialData, onSubmit, onCancel 
                 placeholder="Ex: Linho cinza"
               />
             </div>
-            <div className="md:col-span-1">
+            <div className="md:col-span-2">
               <label className="block text-xs font-medium mb-1">Qtd*</label>
               <Input
                 required
@@ -242,19 +242,18 @@ export default function ServiceForm({ clientId, initialData, onSubmit, onCancel 
                 min="1"
                 value={item.quantity}
                 onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                className="w-20"
               />
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-medium mb-1">Valor Unit. (R$)</label>
               <Input
-                type="text" // Use text to handle currency formatting easily
-                value={formatCurrency(item.unitValue).replace('R$\xa0', '')} // Display formatted value without prefix
+                type="text"
+                value={formatCurrency(item.unitValue).replace('R$\xa0', '')}
                 onChange={(e) => handleItemChange(index, 'unitValue', parseCurrency(e.target.value))}
                 placeholder="0,00"
               />
             </div>
-            <div className="md:col-span-1 flex items-end justify-center">
+            <div className="md:col-span-0 flex items-end justify-center">
               {items.length > 1 && (
                 <Button
                   type="button"
