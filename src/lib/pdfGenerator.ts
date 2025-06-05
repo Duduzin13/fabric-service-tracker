@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Client, Service, ServiceItem } from '@/types'; // Import ServiceItem
 
-// Helper function to load image data (remains the same)
+// Helper function to load image data
 async function loadImage(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -75,7 +75,7 @@ export async function generateServicePDF(client: Client, service: Service): Prom
     0: { cellWidth: 40 }, // Ambiente
     1: { cellWidth: 60 }, // Item
     2: { cellWidth: 50 }, // Material
-    3: { cellWidth: 20, halign: 'center' }, // Quantidade
+    3: { cellWidth: 20, halign: 'center' as const }, // Quantidade
   };
 
   autoTable(doc, {
@@ -136,17 +136,11 @@ export async function generateServicePDF(client: Client, service: Service): Prom
         doc.addImage(imgData, 'JPEG', currentX, yPos, imgWidth, imgHeight);
         currentX += imgWidth + spacing;
       } catch (error) {
-        console.error(`Erro ao adicionar imagem ${i}:`, error);
-        // Optionally draw a placeholder for the failed image
-        doc.rect(currentX, yPos, imgWidth, imgHeight);
-        doc.text("Erro", currentX + imgWidth / 2, yPos + imgHeight / 2, { align: 'center' });
-        currentX += imgWidth + spacing;
+        console.error('Erro ao adicionar imagem:', error);
       }
     }
-    yPos += imgHeight + 5; // Update yPos after images
   }
 
-  // Finalize and return Blob
   return new Promise<Blob>((resolve) => {
     const blob = doc.output('blob');
     resolve(blob);
@@ -287,4 +281,3 @@ export const generateClientOS = (service: Service, client: Client): void => {
   // Save the PDF
   doc.save(`OS_Cliente_${service.controlNumber}_${client.name.split(' ')[0]}.pdf`);
 };
-

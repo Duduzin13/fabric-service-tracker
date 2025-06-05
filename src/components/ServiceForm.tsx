@@ -136,19 +136,13 @@ export default function ServiceForm({ clientId, initialData, onSubmit, onCancel 
     };
 
     await onSubmit(service);
-    // Optionally reset form or navigate away after successful submission
-    // if (!initialData) { // Reset only if it's a new service form
-    //   setFormData({ type: '', description: '', controlNumber: '', deadline: '', paymentMethod: '' });
-    //   setItems([{ id: crypto.randomUUID(), environment: '', item: '', material: '', quantity: 1, unitValue: 0 }]);
-    //   setImages([]);
-    // }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Service Details */}
       <div className="space-y-4 p-4 border rounded-md bg-background/50">
-        <h3 class="text-lg font-medium mb-3">Detalhes Gerais do Serviço</h3>
+        <h3 className="text-lg font-medium mb-3">Detalhes Gerais do Serviço</h3>
         <div>
           <label className="block text-sm font-medium mb-1">Tipo de Serviço*</label>
           <Input
@@ -168,157 +162,169 @@ export default function ServiceForm({ clientId, initialData, onSubmit, onCancel 
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Descrição Geral</label>
+          <label className="block text-sm font-medium mb-1">Descrição</label>
           <Textarea
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            className="min-h-[80px]"
-            placeholder="Detalhes gerais sobre o serviço..."
+            placeholder="Descreva o serviço..."
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Data de Entrega</label>
-            <Input
-              type="date"
-              value={formData.deadline}
-              onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Forma de Pagamento</label>
-            <Input
-              value={formData.paymentMethod}
-              onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
-              placeholder="Ex: Sinal 40%, restante 30/60 dias"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Prazo de Entrega</label>
+          <Input
+            type="date"
+            value={formData.deadline}
+            onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Forma de Pagamento</label>
+          <Input
+            value={formData.paymentMethod}
+            onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
+            placeholder="Ex: Dinheiro, PIX, Cartão..."
+          />
         </div>
       </div>
 
-      {/* Service Items */}
+      {/* Items Section */}
       <div className="space-y-4 p-4 border rounded-md bg-background/50">
-        <div className="flex justify-between items-center mb-3">
-            <h3 class="text-lg font-medium">Itens do Serviço*</h3>
-            <Button type="button" size="sm" onClick={addItem} variant="outline">
-                <Plus className="mr-2 h-4 w-4" /> Adicionar Item
-            </Button>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">Itens do Serviço</h3>
+          <Button type="button" onClick={addItem} variant="outline" size="sm">
+            <Plus className="h-4 w-4 mr-1" /> Adicionar Item
+          </Button>
         </div>
+
         {items.map((item, index) => (
-          <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3 border rounded relative bg-white shadow-sm">
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium mb-1">Ambiente</label>
-              <Input
-                value={item.environment}
-                onChange={(e) => handleItemChange(index, 'environment', e.target.value)}
-                placeholder="Ex: Sala"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <label className="block text-xs font-medium mb-1">Item*</label>
-              <Input
-                required
-                value={item.item}
-                onChange={(e) => handleItemChange(index, 'item', e.target.value)}
-                placeholder="Ex: Sofá 3 lugares"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <label className="block text-xs font-medium mb-1">Material*</label>
-              <Input
-                required
-                value={item.material}
-                onChange={(e) => handleItemChange(index, 'material', e.target.value)}
-                placeholder="Ex: Linho cinza"
-              />
-            </div>
-            <div className="md:col-span-1">
-              <label className="block text-xs font-medium mb-1">Qtd*</label>
-              <Input
-                required
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium mb-1">Valor Unit. (R$)</label>
-              <Input
-                type="text" // Use text to handle currency formatting easily
-                value={formatCurrency(item.unitValue).replace('R$\xa0', '')} // Display formatted value without prefix
-                onChange={(e) => handleItemChange(index, 'unitValue', parseCurrency(e.target.value))}
-                placeholder="0,00"
-              />
-            </div>
-            <div className="md:col-span-1 flex items-end justify-center">
+          <div key={item.id} className="p-4 border rounded-md space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Item {index + 1}</h4>
               {items.length > 1 && (
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:bg-destructive/10"
                   onClick={() => removeItem(index)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Ambiente*</label>
+                <Input
+                  required
+                  value={item.environment}
+                  onChange={(e) => handleItemChange(index, 'environment', e.target.value)}
+                  placeholder="Ex: Sala, Quarto..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Item*</label>
+                <Input
+                  required
+                  value={item.item}
+                  onChange={(e) => handleItemChange(index, 'item', e.target.value)}
+                  placeholder="Ex: Cortina, Sofá..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Material*</label>
+                <Input
+                  required
+                  value={item.material}
+                  onChange={(e) => handleItemChange(index, 'material', e.target.value)}
+                  placeholder="Ex: Linho, Veludo..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Quantidade*</label>
+                <Input
+                  required
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Valor Unitário</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={item.unitValue}
+                  onChange={(e) => handleItemChange(index, 'unitValue', parseFloat(e.target.value))}
+                  placeholder="R$ 0,00"
+                />
+              </div>
+            </div>
           </div>
         ))}
-        <div className="text-right font-medium mt-4">
-            Valor Total Calculado: {formatCurrency(totalValue)}
+
+        <div className="text-right font-medium">
+          Valor Total: {formatCurrency(totalValue)}
         </div>
       </div>
 
-      {/* Image Upload */}
-      <div className="space-y-2 p-4 border rounded-md bg-background/50">
-        <h3 class="text-lg font-medium mb-3">Imagens (máx. 4)</h3>
-        <div className="flex flex-wrap gap-3 mb-3">
-          {images.map((url, index) => (
+      {/* Images Section */}
+      <div className="space-y-4 p-4 border rounded-md bg-background/50">
+        <h3 className="text-lg font-medium">Imagens</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {images.map((image, index) => (
             <div key={index} className="relative group">
-              <img 
-                src={url} 
-                alt={`Imagem ${index + 1}`} 
-                className="w-24 h-24 object-cover rounded border"
+              <img
+                src={image}
+                alt={`Imagem ${index + 1}`}
+                className="w-full h-32 object-cover rounded-md"
               />
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                aria-label="Remover imagem"
+                className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <X size={14} />
+                <X className="h-4 w-4" />
               </button>
             </div>
           ))}
+          {images.length < 4 && (
+            <label className="flex items-center justify-center h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-accent/50 transition-colors">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
+              <div className="text-center">
+                <Plus className="h-6 w-6 mx-auto mb-1" />
+                <span className="text-sm">Adicionar Imagem</span>
+              </div>
+            </label>
+          )}
         </div>
-        {images.length < 4 && (
-          <Input
-            type="file"
-            accept="image/jpeg, image/png, image/webp"
-            onChange={handleImageUpload}
-            multiple // Allow multiple file selection up to the limit
-            disabled={isUploading}
-            className="w-full text-sm"
-          />
-        )}
-        {isUploading && <p className="text-sm text-muted-foreground">Enviando imagens...</p>}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4">
+      {/* Form Actions */}
+      <div className="flex justify-end space-x-4">
         {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-                Cancelar
-            </Button>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
         )}
         <Button type="submit" disabled={isUploading}>
-          {isUploading ? 'Enviando...' : (initialData ? 'Atualizar Serviço' : 'Cadastrar Serviço')}
+          {initialData ? 'Atualizar' : 'Criar'} Serviço
         </Button>
       </div>
     </form>
   );
 }
-
