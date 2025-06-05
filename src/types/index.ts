@@ -36,3 +36,5 @@ export interface Service {
   images?: string[]; // URLs das imagens (até 4)
   items: ServiceItem[]; // Array de itens detalhados do serviço
 }
+
+

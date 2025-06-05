@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Client, Service, ServiceItem } from '@/types'; // Import ServiceItem
+import { Client, Service } from '@/types';
 
-// Helper function to load image data
+// Helper function to load image data (remains the same)
 async function loadImage(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -136,11 +136,17 @@ export async function generateServicePDF(client: Client, service: Service): Prom
         doc.addImage(imgData, 'JPEG', currentX, yPos, imgWidth, imgHeight);
         currentX += imgWidth + spacing;
       } catch (error) {
-        console.error('Erro ao adicionar imagem:', error);
+        console.error(`Erro ao adicionar imagem ${i}:`, error);
+        // Optionally draw a placeholder for the failed image
+        doc.rect(currentX, yPos, imgWidth, imgHeight);
+        doc.text("Erro", currentX + imgWidth / 2, yPos + imgHeight / 2, { align: 'center' });
+        currentX += imgWidth + spacing;
       }
     }
+    yPos += imgHeight + 5; // Update yPos after images
   }
 
+  // Finalize and return Blob
   return new Promise<Blob>((resolve) => {
     const blob = doc.output('blob');
     resolve(blob);
@@ -273,11 +279,45 @@ export const generateClientOS = (service: Service, client: Client): void => {
   
   const paymentText = service.paymentMethod ? `Forma de Pagamento: ${service.paymentMethod}` : "Forma de Pagamento: A combinar";
   doc.text(paymentText, margin, yPos);
-  yPos += 10;
+  yPos += 15; // Increased space before footer
 
-  // Footer/Signature area (optional, based on model)
-  // doc.text("Agradecemos a preferência!", pageWidth / 2, yPos, { align: 'center' });
+  // Footer Section
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let footerY = pageHeight - 35; // Start position for footer content
+
+  // Check if content needs more space, potentially push footer down or add page (simplified)
+  if (yPos > footerY - 10) { 
+      // If content is too close to the default footer position, adjust footerY
+      // This is a basic check; complex multi-page scenarios might need didDrawPage hook
+      footerY = yPos + 5; 
+      if (footerY > pageHeight - 10) { // If it still doesn't fit, add page (basic)
+          doc.addPage();
+          footerY = 20; // Reset Y on new page
+      }
+  }
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "italic");
+  doc.text("Agradecemos a preferência!", pageWidth / 2, footerY, { align: "center" });
+  footerY += 5;
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text("Stanza Decoro - Tapeçaria de Alto Padrão", pageWidth / 2, footerY, { align: "center" });
+  footerY += 5;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.text("R. Armando Erse Figueiredo, 143 - Jardim Campo Limpo, São Paulo - SP", pageWidth / 2, footerY, { align: "center" });
+  footerY += 5;
+
+  // Contact Info in Footer
+  const phone1 = "(11) 97556-3037";
+  const phone2 = "(11) 98016-6617";
+  const email = "stanzadecoro@gmail.com";
+  doc.text(`Contato: ${phone1} / ${phone2} | Email: ${email}`, pageWidth / 2, footerY, { align: "center" });
 
   // Save the PDF
-  doc.save(`OS_Cliente_${service.controlNumber}_${client.name.split(' ')[0]}.pdf`);
+  doc.save(`OS_Cliente_${service.controlNumber}_${client.name.split(" ")[0]}.pdf`);
 };
+
